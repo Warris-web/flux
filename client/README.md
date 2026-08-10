@@ -161,8 +161,8 @@ npm install
 
 ```env
 PORT=5000
-MONGODB_URI=mongodb+srv://verrascan:verra123@pedaldrop.o2olt1q.mongodb.net/?appName=PedalDrop
-JWT_SECRET=verascann_super_secret_jwt_key_2025
+MONGODB_URI=your_mongodb_uri
+JWT_SECRET=**************
 
 # Squad API (get from sandbox.squadco.com)
 SQUAD_SECRET_KEY=
@@ -190,11 +190,11 @@ VITE_API_URL=https://fluxsquad.vercel.app/
 
 ```bash
 # Terminal 1 — Backend
-cd verascan/server
+cd flux/server
 npm run dev
 
 # Terminal 2 — Frontend
-cd verascan/client
+cd flux/client
 npm run dev
 ```
 
@@ -202,13 +202,11 @@ Open [http://localhost:5173](http://localhost:5173)
 
 ---
 
-## NAFDAC Credentials created by the admin
 
 
+### Demo Credentials
 
-| Role | Email | Password |
-|---|---|---|
-| NAFDAC Officer | ngozi@nafdac.gov.ng | nafdac123 |
+For security reasons, demo credentials are not published in this repository.
 
 
 ---

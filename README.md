@@ -1,15 +1,32 @@
 # Flux — AI-Powered Counterfeit Detection
 
-> **"See the truth."** — Point your camera at any product. Get a forensic verdict in 4 seconds.
+> **"See the truth."**  
+> Point your camera at any product and get an AI-powered authenticity assessment in seconds.
 
+Flux is an AI-powered product authentication platform designed to help consumers, brands, vendors, and regulatory bodies detect counterfeit products using computer vision, OCR, NLP, and product intelligence.
+
+The platform allows users to scan a product using a smartphone camera or upload an image and receive an authenticity assessment together with a forensic breakdown of the signals used during verification.
+
+---
 
 ## What is Flux?
 
-Bloomberg labelled Nigeria the most counterfeit market in the developing world. **70% of drugs in circulation are fake. 12,300 Nigerians die every year from counterfeit malaria drugs alone.**
+Counterfeit products remain a major challenge across healthcare, consumer goods, and other industries.
 
-Flux is an AI-powered product authentication platform that uses computer vision, OCR, and NLP to verify whether a product is genuine or counterfeit — in real time, using only a smartphone camera or uploaded photo.
+Flux addresses this problem by providing a technology-driven verification layer that can analyze product packaging and associated information without requiring QR codes, specialized hardware, or direct manufacturer integration.
 
-**No QR codes. No special hardware. No manufacturer cooperation required. Just a camera.**
+Flux combines:
+
+- Computer vision
+- OCR
+- Natural Language Processing
+- Product information validation
+- Real-time analytics
+- Geolocation
+- Vendor discovery
+- Payment infrastructure
+
+The goal is to make product verification accessible through a standard smartphone camera.
 
 ---
 
@@ -17,59 +34,71 @@ Flux is an AI-powered product authentication platform that uses computer vision,
 
 | Resource | Link |
 |---|---|
-| 🌐 Web App | [Flux.vercel.app](https://Fluxsquad.vercel.app) |
-| 🔌 API | [your-railway-url.railway.app](https://flux-w0wv.onrender.com) |
-| 🤖 AI Model | [Oriadee-Flux-api.hf.space](https://Oriadee-Flux-api.hf.space) |
+| 🌐 Web Application | [Flux](https://fluxsquad.vercel.app) |
+| 🔌 Backend API | [Flux API](https://flux-w0wv.onrender.com) |
+| 🤖 AI Microservice | [Flux AI API](https://Oriadee-Flux-api.hf.space) |
 
 ---
 
 ## The Problem
 
-| Metric | Scale |
-|---|---|
-| Fake products in Nigeria | 70% of Product in circulation |
-| Deaths per year | 12,300 from fake malaria drugs alone |
-| Counterfeit auto parts | 75% of parts in Nigeria (SON) |
-| NAFDAC seizures | ₦120B worth in just 6 months |
-| Global economic loss | $1.7 trillion per year |
+Counterfeit products create significant risks for consumers, legitimate businesses, and regulatory agencies.
+
+Flux focuses particularly on the problem of counterfeit pharmaceutical products and other high-risk consumer goods.
 
 ---
 
-## How It Works
+## How Flux Works
 
-A user points their camera — or uploads a photo — at any product. In under 5 seconds, Flux analyses six forensic signals simultaneously and returns a trust score: **GENUINE**, **SUSPICIOUS**, or **COUNTERFEIT** — with a full forensic breakdown.
+A user can point their camera at a product or upload a product image.
 
-### Six Forensic Signals
+Flux processes the submitted information through multiple verification layers and returns an authenticity assessment.
 
-| Signal | What the AI Detects |
-|---|---|
-| **Typography Forensics** | Kerning, font weight, letter spacing anomalies invisible to the human eye |
-| **Colour Profile Analysis** | Pantone/CMYK deviations — even a 2% colour shift in hue or saturation |
-| **Print Quality & Halftone** | Dot density, ink bleed, resolution artifacts in packaging print |
-| **Geometric Ratio Analysis** | Logo proportions, border thickness — counterfeits compress or stretch slightly |
-| **OCR + NLP Validation** | NAFDAC numbers, batch codes, expiry formats, manufacturer address checking |
-| **Texture & Surface Analysis** | Embossing depth, seal ridge consistency, hologram integrity |
+The system can classify a product as:
+
+- **GENUINE**
+- **SUSPICIOUS**
+- **COUNTERFEIT**
+
+The result is accompanied by a forensic breakdown explaining the signals considered during verification.
 
 ---
 
-## Architecture
+## Forensic Verification Signals
+
+| Signal | What the system analyzes |
+|---|---|
+| **Typography Forensics** | Font characteristics, spacing and typography anomalies |
+| **Colour Profile Analysis** | Colour and visual deviations |
+| **Print Quality & Halftone Analysis** | Printing artifacts, dot patterns and quality inconsistencies |
+| **Geometric Ratio Analysis** | Logo proportions, borders and packaging geometry |
+| **OCR + NLP Validation** | Product numbers, batch information, expiry formats and manufacturer information |
+| **Texture & Surface Analysis** | Packaging texture, embossing, seals and other physical characteristics |
+
+---
+
+# Architecture
+
+Flux is implemented as a multi-service application consisting of a frontend, backend API, database layer and AI microservice.
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                        Flux                            │
-├──────────────┬──────────────────────┬───────────────────────┤
-│   Frontend   │      Backend         │    AI Microservice    │
-│  React/Vite  │  Node.js + Express   │  FastAPI + Python     │
-│  Vercel      │  Railway             │  HuggingFace Spaces   │
-│              │                      │                       │
-│  /scan       │  POST /api/scan ─────┼──► POST /verify       │
-│  /onboard    │  POST /api/brands    │   EfficientNet-B0     │
-│  /brand      │  POST /api/vendors   │   Tesseract OCR       │
-│  /dashboard  │  GET  /api/dashboard │   BERT NLP            │
-│  /vendor/... │  POST /api/squad/... │                       │
-└──────────────┴──────────────────────┴───────────────────────┘
-                         │
-                    MongoDB Atlas
+┌─────────────────────────────────────────────────────────────────────┐
+│                              FLUX                                   │
+├──────────────────────┬───────────────────────┬──────────────────────┤
+│      Frontend        │       Backend         │    AI Microservice   │
+│                      │                       │                      │
+│    React + Vite      │    Node.js + Express  │    FastAPI + Python  │
+│      Vercel          │       Render          │   Hugging Face       │
+│                      │                       │                      │
+│  /scan               │ POST /api/scan        │ POST /verify         │
+│  /onboard            │ POST /api/brands      │ EfficientNet-B0      │
+│  /brand              │ POST /api/vendors     │ Tesseract OCR        │
+│  /dashboard          │ GET  /api/dashboard   │ BERT NLP             │
+│  /vendor             │ POST /api/squad       │                      │
+└──────────────────────┴───────────────────────┴──────────────────────┘
+                              │
+                              ▼
+                         MongoDB Atlas
 ```
 
 ### Tech Stack
@@ -161,8 +190,8 @@ npm install
 
 ```env
 PORT=5000
-MONGODB_URI=mongodb+srv://verrascan:verra123@pedaldrop.o2olt1q.mongodb.net/?appName=PedalDrop
-JWT_SECRET=verascann_super_secret_jwt_key_2025
+MONGODB_URI=mongodb_uri
+JWT_SECRET=yoursecretkey
 
 # Squad API (get from sandbox.squadco.com)
 SQUAD_SECRET_KEY=
@@ -202,13 +231,9 @@ Open [http://localhost:5173](http://localhost:5173)
 
 ---
 
-## NAFDAC Credentials created by the admin
+### Demo Credentials
 
-
-
-| Role | Email | Password |
-|---|---|---|
-| NAFDAC Officer | ngozi@nafdac.gov.ng | nafdac123 |
+For security reasons, demo credentials are not published in this repository.
 
 
 ---
@@ -370,15 +395,15 @@ Flux/
 
 ---
 
-## The Team
+### Team
 
 | Name | Role |
 |---|---|
-| Warris  | Full Stack Engineer — React, Node.js, MongoDB, Squad API |
-| Boluwatife | AI/ML Engineer — EfficientNet-B0, Tesseract OCR, BERT, FastAPI,NLP |
+| Warris | Full Stack Engineer — designed and implemented the React frontend, Node.js/Express backend, MongoDB data layer, authentication, APIs and Squad payment integration |
+| Boluwatife | AI/ML Engineer — EfficientNet-B0, Tesseract OCR, BERT, FastAPI, NLP |
 | Similoluwa | Product & UI/UX Designer |
 
 ---
 
 
-*Flux · See the truth · Squad Hackathon 3.0 · Challenge 01: Proof of Life*
+*Flux · See the truth  ·Proof of Life*
