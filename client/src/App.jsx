@@ -1,95 +1,8 @@
-// import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-// import { useAuth } from "./context/AuthContext";
-// import Topbar          from "./components/Topbar";
-// import ScanPage        from "./pages/ScanPage";
-// import DashboardPage   from "./pages/DashboardPage";
-// import OnboardPage     from "./pages/OnboardPage";
-// import LoginPage       from "./pages/LoginPage";
-// import BrandPortal     from "./pages/BrandPortal";
-// import NafdacPortal    from "./pages/NafdacPortal";
-// import "./App.css";
-
-// function Protected({ role, children }) {
-//   const { user, loading } = useAuth();
-//   if (loading) return <div style={{ padding: 40, color: "#555", textAlign: "center" }}>Loading...</div>;
-//   if (!user)   return <Navigate to="/login" replace />;
-//   if (role && user.role !== role) return <Navigate to="/login" replace />;
-//   return children;
-// }
-
-// export default function App() {
-//   return (
-//     <BrowserRouter>
-//       <Topbar />
-//       <Routes>
-//         <Route path="/"       element={<ScanPage />} />
-//         <Route path="/onboard" element={<OnboardPage />} />
-//         <Route path="/login"  element={<LoginPage />} />
-
-//         {/* Protected — NAFDAC only */}
-//         <Route path="/dashboard" element={
-//           <Protected role="nafdac"><NafdacPortal /></Protected>
-//         } />
-
-//         {/* Protected — Brand only */}
-//         <Route path="/brand" element={
-//           <Protected role="brand"><BrandPortal /></Protected>
-//         } />
-//       </Routes>
-//     </BrowserRouter>
-//   );
-// }
-
-
-// import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-// import { useAuth }         from "./context/AuthContext";
-// import Topbar              from "./components/Topbar";
-// import ScanPage            from "./pages/ScanPage";
-// import OnboardPage         from "./pages/OnboardPage";
-// import LoginPage           from "./pages/LoginPage";
-// import BrandPortal         from "./pages/BrandPortal";
-// import NafdacPortal        from "./pages/NafdacPortal";
-// import VendorRegisterPage  from "./pages/VendorRegisterPage";
-// import VendorLocatorPage   from "./pages/VendorLocatorPage";
-// import VendorPortal       from "./pages/VendorPortal";
-// import "./App.css";
-
-// function Protected({ role, children }) {
-//   const { user, loading } = useAuth();
-//   if (loading) return <div style={{ padding: 40, color: "#555", textAlign: "center" }}>Loading...</div>;
-//   if (!user)   return <Navigate to="/login" replace />;
-//   if (role && user.role !== role) return <Navigate to="/login" replace />;
-//   return children;
-// }
-
-// export default function App() {
-//   return (
-//     <BrowserRouter>
-//       <Topbar />
-//       <Routes>
-//         <Route path="/"                element={<ScanPage />} />
-//         <Route path="/onboard"         element={<OnboardPage />} />
-//         <Route path="/login"           element={<LoginPage />} />
-//         <Route path="/vendor/register" element={<VendorRegisterPage />} />
-//         <Route path="/vendor/locator"  element={<VendorLocatorPage />} />
-
-//         <Route path="/dashboard" element={
-//           <Protected role="nafdac"><NafdacPortal /></Protected>
-//         } />
-//         <Route path="/brand" element={
-//           <Protected role="brand"><BrandPortal /></Protected>
-//         } />
-//         <Route path="/vendor/portal" element={
-//           <Protected role="vendor"><VendorPortal /></Protected>
-//         } />
-//       </Routes>
-//     </BrowserRouter>
-//   );
-// }
-
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useAuth }         from "./context/AuthContext";
+import useTheme            from "./useTheme";
 import Topbar              from "./components/Topbar";
+import LandingPage         from "./pages/LandingPage";
 import ScanPage            from "./pages/ScanPage";
 import OnboardPage         from "./pages/OnboardPage";
 import LoginPage           from "./pages/LoginPage";
@@ -98,39 +11,48 @@ import NafdacPortal        from "./pages/NafdacPortal";
 import VendorPortal        from "./pages/VendorPortal";
 import VendorRegisterPage  from "./pages/VendorRegisterPage";
 import VendorLocatorPage   from "./pages/VendorLocatorPage";
-import LandingPage from "./pages/LandingPage";
-import "./App.css";
 
 function Protected({ role, children }) {
   const { user, loading } = useAuth();
-  if (loading) return <div style={{ padding: 40, color: "#555", textAlign: "center" }}>Loading...</div>;
-  if (!user)   return <Navigate to="/login" replace />;
-  if (role && user.role !== role) return <Navigate to="/login" replace />;
+  if (loading) return <div className="p-10 text-center text-neutral-500">Loading...</div>;
+  if (!user || (role && user.role !== role)) return <Navigate to="/login" replace />;
   return children;
+}
+
+function Shell() {
+  const { pathname } = useLocation();
+  const [dark, toggleTheme] = useTheme();
+  const themed = pathname === "/"; // light/dark applies to the landing page; app screens stay dark
+
+  return (
+    <div
+      className={`min-h-screen font-sans transition-colors ${
+        themed
+          ? "bg-white text-neutral-950 dark:bg-black dark:text-white"
+          : "dark bg-[#0A0A0A] text-white"
+      }`}
+    >
+      <Topbar themed={themed} dark={dark} onToggleTheme={toggleTheme} />
+      <Routes>
+        <Route path="/"                 element={<LandingPage />} />
+        <Route path="/scan"             element={<ScanPage />} />
+        <Route path="/onboard"          element={<OnboardPage />} />
+        <Route path="/login"            element={<LoginPage />} />
+        <Route path="/vendor/register"  element={<VendorRegisterPage />} />
+        <Route path="/vendor/locator"   element={<VendorLocatorPage />} />
+        <Route path="/dashboard"        element={<Protected role="nafdac"><NafdacPortal /></Protected>} />
+        <Route path="/brand"            element={<Protected role="brand"><BrandPortal /></Protected>} />
+        <Route path="/vendor/portal"    element={<Protected role="vendor"><VendorPortal /></Protected>} />
+        <Route path="*"                 element={<Navigate to="/" replace />} />
+      </Routes>
+    </div>
+  );
 }
 
 export default function App() {
   return (
     <BrowserRouter>
-      <Topbar />
-      <Routes>
-        <Route path="/"     element={<LandingPage />} />
-        <Route path="scan"                element={<ScanPage />} />
-        <Route path="/onboard"         element={<OnboardPage />} />
-        <Route path="/login"           element={<LoginPage />} />
-        <Route path="/vendor/register" element={<VendorRegisterPage />} />
-        <Route path="/vendor/locator"  element={<VendorLocatorPage />} />
-
-        <Route path="/dashboard" element={
-          <Protected role="nafdac"><NafdacPortal /></Protected>
-        } />
-        <Route path="/brand" element={
-          <Protected role="brand"><BrandPortal /></Protected>
-        } />
-        <Route path="/vendor/portal" element={
-          <Protected role="vendor"><VendorPortal /></Protected>
-        } />
-      </Routes>
+      <Shell />
     </BrowserRouter>
   );
 }

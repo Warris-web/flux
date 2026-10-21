@@ -294,7 +294,7 @@ GET /api/vendors/nearby?city=Lagos&product=Coartem
 
 ### Auth — Login
 
-```http
+```httpm
 POST /api/auth/login
 Content-Type: application/json
 

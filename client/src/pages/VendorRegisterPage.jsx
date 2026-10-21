@@ -17,13 +17,11 @@ const NIGERIAN_STATES = [
 const PRODUCTS = ["Coartem","Vaseline","Paracetamol","Amoxicillin","Artemether","Chloroquine","Ibuprofen","Metronidazole"];
 
 export default function VendorRegisterPage() {
-  // Handle Squad redirect back
   useEffect(() => {
     const status    = searchParams.get("status");
     const reference = searchParams.get("reference");
 
     if (status === "success" && reference) {
-      // Activate vendor by reference
       axios.post(`${API}/api/vendors/activate-by-reference`, { reference })
         .catch(() => {});
       setStep(4);
@@ -36,11 +34,6 @@ export default function VendorRegisterPage() {
   );
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState(null);
-  // const [form,    setForm]    = useState({
-  //   pharmacy_name: "", owner_name: "", email: "",
-  //   phone: "", address: "", city: "", state: "",
-  //   products: [],
-  // });
   const [form, setForm] = useState({
     pharmacy_name: "", owner_name: "", email: "",
     phone: "", address: "", city: "", state: "",
@@ -56,16 +49,6 @@ export default function VendorRegisterPage() {
       : [...f.products, p],
   }));
 
-  // const submit = async () => {
-  //   setLoading(true); setError(null);
-  //   try {
-  //     const { data } = await axios.post(`${API}/api/vendors/register`, form);
-  //     if (data.payment_url) window.open(data.payment_url, "_blank");
-  //     setStep(3);
-  //   } catch (err) {
-  //     setError(err.response?.data?.error || "Registration failed");
-  //   } finally { setLoading(false); }
-  // };
   const submit = async () => {
   setLoading(true); setError(null);
   try {
@@ -80,7 +63,6 @@ export default function VendorRegisterPage() {
       products:      form.products.filter(p => p.name && p.price > 0),
       password:      form.password,
     });
-    // if (data.payment_url) window.open(data.payment_url, "_blank");
     if (data.payment_url) window.location.href = data.payment_url;
     setStep(4);
   } catch (err) {
@@ -90,18 +72,17 @@ export default function VendorRegisterPage() {
 
   const inp = { width: "100%", background: "#111", border: "1px solid #2A2A2A", borderRadius: 7, padding: "10px 13px", fontSize: 13, color: "#fff", outline: "none", fontFamily: "inherit" };
   const lbl = { fontSize: 11, color: "#666", marginBottom: 5, display: "block" };
-  const btn = { background: "#00C9A7", color: "#000", border: "none", borderRadius: 8, padding: "11px 24px", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" };
+  const btn = { background: "#E5391F", color: "#fff", border: "none", borderRadius: 8, padding: "11px 24px", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" };
   const sec = { background: "transparent", color: "#666", border: "1px solid #2A2A2A", borderRadius: 8, padding: "11px 20px", fontSize: 13, cursor: "pointer", fontFamily: "inherit" };
 
-  // const STEPS = ["Pharmacy Info", "Location", "Products & Payment", "Done"];
-  const STEPS = ["Pharmacy Info", "Location", "Products", "Account & Pay", "Done"];
+  const STEPS = ["Vendor Info", "Location", "Products", "Account & Pay", "Done"];
 
   return (
     <div style={{ padding: 24, maxWidth: 580, margin: "0 auto" }}>
       <div style={{ marginBottom: 28 }}>
-        <div style={{ fontSize: 11, color: "#00C9A7", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 6 }}>Vendor Registration</div>
+        <div style={{ fontSize: 11, color: "#E5391F", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 6 }}>Vendor Registration</div>
         <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 4 }}>Become a Verified Vendor</div>
-        <div style={{ fontSize: 12, color: "#555" }}>Join the Flux verified pharmacy network. When a counterfeit is detected nearby, we send customers to you.</div>
+        <div style={{ fontSize: 12, color: "#555" }}>Join the Mantios verified vendor network. When a counterfeit is detected nearby, we send customers to you.</div>
       </div>
 
       {/* Stepper */}
@@ -109,26 +90,26 @@ export default function VendorRegisterPage() {
         {STEPS.map((label, i) => (
           <div key={i} style={{ display: "flex", alignItems: "center", flex: i < STEPS.length - 1 ? 1 : 0 }}>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-              <div style={{ width: 26, height: 26, borderRadius: "50%", background: step > i ? "#00C9A7" : i === step ? "rgba(0,201,167,0.15)" : "#1A1A1A", border: `1px solid ${step >= i ? "#00C9A7" : "#2A2A2A"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, color: step > i ? "#000" : i === step ? "#00C9A7" : "#555", marginBottom: 4 }}>
+              <div style={{ width: 26, height: 26, borderRadius: "50%", background: step > i ? "#E5391F" : i === step ? "rgba(229,57,31,0.15)" : "#1A1A1A", border: `1px solid ${step >= i ? "#E5391F" : "#2A2A2A"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, color: step > i ? "#000" : i === step ? "#E5391F" : "#555", marginBottom: 4 }}>
                 {step > i ? "✓" : i + 1}
               </div>
-              <div style={{ fontSize: 9, color: step >= i ? "#00C9A7" : "#444", whiteSpace: "nowrap" }}>{label}</div>
+              <div style={{ fontSize: 9, color: step >= i ? "#E5391F" : "#444", whiteSpace: "nowrap" }}>{label}</div>
             </div>
-            {i < STEPS.length - 1 && <div style={{ flex: 1, height: 1, background: step > i ? "#00C9A7" : "#2A2A2A", margin: "0 6px", marginBottom: 16 }} />}
+            {i < STEPS.length - 1 && <div style={{ flex: 1, height: 1, background: step > i ? "#E5391F" : "#2A2A2A", margin: "0 6px", marginBottom: 16 }} />}
           </div>
         ))}
       </div>
 
       <div style={{ background: "#141414", border: "1px solid #2A2A2A", borderRadius: 12, padding: "24px" }}>
 
-        {/* Step 0 — Pharmacy Info */}
+        {/* Step 0 — Vendor Info */}
         {step === 0 && (
           <div>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 18 }}>Pharmacy Information</div>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 18 }}>Vendor Information</div>
             {[
-              ["Pharmacy Name",  "pharmacy_name", "e.g. HealthPlus Pharmacy"],
+              ["Vendor Name",  "pharmacy_name", "e.g. HealthPlus Stores"],
               ["Owner / Manager Name", "owner_name", "e.g. Mr. Adebayo"],
-              ["Email Address",  "email",         "pharmacy@email.com"],
+              ["Email Address",  "email",         "vendor@email.com"],
               ["Phone Number",   "phone",          "e.g. 08012345678"],
             ].map(([label, key, ph]) => (
               <div key={key} style={{ marginBottom: 14 }}>
@@ -148,7 +129,7 @@ export default function VendorRegisterPage() {
         {/* Step 1 — Location */}
         {step === 1 && (
           <div>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 18 }}>Pharmacy Location</div>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 18 }}>Vendor Location</div>
             <div style={{ marginBottom: 14 }}>
               <label style={lbl}>Street Address</label>
               <input placeholder="e.g. 15 Broad Street, Lagos Island" value={form.address} onChange={e => set("address", e.target.value)} style={inp} />
@@ -168,7 +149,7 @@ export default function VendorRegisterPage() {
             </div>
             <div style={{ background: "#111", border: "1px solid #2A2A2A", borderRadius: 8, padding: "12px 14px", marginBottom: 18 }}>
               <div style={{ fontSize: 11, color: "#555", marginBottom: 4 }}>📍 Location tip</div>
-              <div style={{ fontSize: 11, color: "#444", lineHeight: 1.6 }}>Your pharmacy will appear in the vendor locator when a counterfeit product is detected near your city. Make sure your address is accurate.</div>
+              <div style={{ fontSize: 11, color: "#444", lineHeight: 1.6 }}>Your vendor will appear in the vendor locator when a counterfeit product is detected near your city. Make sure your address is accurate.</div>
             </div>
             <div style={{ display: "flex", gap: 10 }}>
               <button onClick={() => setStep(0)} style={sec}>Back</button>
@@ -235,19 +216,19 @@ export default function VendorRegisterPage() {
         {/* Step 3 — Success */}
         {/* {step === 3 && (
           <div style={{ textAlign: "center", padding: "20px 0" }}>
-            <div style={{ width: 68, height: 68, borderRadius: "50%", background: "rgba(0,201,167,0.1)", border: "2px solid #00C9A7", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 30, margin: "0 auto 16px" }}>✓</div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: "#00C9A7", marginBottom: 8 }}>You're on the network!</div>
-            <div style={{ fontSize: 12, color: "#666", marginBottom: 20 }}>Your pharmacy will appear in the VeraScann vendor locator once payment is confirmed via Squad webhook.</div>
-            <div style={{ background: "#0D2E24", border: "1px solid #009B82", borderRadius: 8, padding: "14px 16px", textAlign: "left", marginBottom: 16 }}>
-              <div style={{ fontSize: 11, fontWeight: 600, color: "#00C9A7", marginBottom: 8 }}>What happens next</div>
+            <div style={{ width: 68, height: 68, borderRadius: "50%", background: "rgba(229,57,31,0.1)", border: "2px solid #E5391F", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 30, margin: "0 auto 16px" }}>✓</div>
+            <div style={{ fontSize: 18, fontWeight: 700, color: "#E5391F", marginBottom: 8 }}>You're on the network!</div>
+            <div style={{ fontSize: 12, color: "#666", marginBottom: 20 }}>Your vendor will appear in the Mantios vendor locator once payment is confirmed via Squad webhook.</div>
+            <div style={{ background: "#2E100B", border: "1px solid #B92D17", borderRadius: 8, padding: "14px 16px", textAlign: "left", marginBottom: 16 }}>
+              <div style={{ fontSize: 11, fontWeight: 600, color: "#E5391F", marginBottom: 8 }}>What happens next</div>
               {[
                 "Squad payment confirmed via webhook",
-                "Pharmacy listed on VeraScann vendor network",
+                "Vendor listed on Mantios vendor network",
                 "Customers directed to you when fake products detected nearby",
                 "You receive Squad-powered payments from verified customers",
               ].map((item, i) => (
                 <div key={i} style={{ display: "flex", gap: 8, marginBottom: 6 }}>
-                  <span style={{ color: "#00C9A7", fontSize: 11 }}>✓</span>
+                  <span style={{ color: "#E5391F", fontSize: 11 }}>✓</span>
                   <span style={{ fontSize: 11, color: "#666" }}>{item}</span>
                 </div>
               ))}
@@ -280,13 +261,13 @@ export default function VendorRegisterPage() {
             {/* Payment summary */}
             <div style={{ background: "#111", border: "1px solid #2A2A2A", borderRadius: 10, padding: "14px", marginBottom: 16, marginTop: 8 }}>
               {[
-                ["Pharmacy",     form.pharmacy_name],
+                ["Vendor",     form.pharmacy_name],
                 ["Products",     `${form.products.length} listed`],
                 ["Listing Fee",  "₦10,000 (one-time)"],
               ].map(([k, v]) => (
                 <div key={k} style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, fontSize: 12 }}>
                   <span style={{ color: "#666" }}>{k}</span>
-                  <span style={{ color: k === "Listing Fee" ? "#00C9A7" : "#fff", fontWeight: k === "Listing Fee" ? 700 : 400 }}>{v}</span>
+                  <span style={{ color: k === "Listing Fee" ? "#E5391F" : "#fff", fontWeight: k === "Listing Fee" ? 700 : 400 }}>{v}</span>
                 </div>
               ))}
             </div>
@@ -306,22 +287,22 @@ export default function VendorRegisterPage() {
         )}
         {step === 4 && (
           <div style={{ textAlign: "center", padding: "20px 0" }}>
-            <div style={{ width: 72, height: 72, borderRadius: "50%", background: "rgba(0,201,167,0.1)", border: "2px solid #00C9A7", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32, margin: "0 auto 16px" }}>✓</div>
-            <div style={{ fontSize: 20, fontWeight: 700, color: "#00C9A7", marginBottom: 8 }}>Payment Successful!</div>
+            <div style={{ width: 72, height: 72, borderRadius: "50%", background: "rgba(229,57,31,0.1)", border: "2px solid #E5391F", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32, margin: "0 auto 16px" }}>✓</div>
+            <div style={{ fontSize: 20, fontWeight: 700, color: "#E5391F", marginBottom: 8 }}>Payment Successful!</div>
             <div style={{ fontSize: 12, color: "#666", marginBottom: 24 }}>
-              Your pharmacy is now on the Flux verified network. Customers will be directed to you when fake products are detected nearby.
+              Your vendor is now on the Mantios verified network. Customers will be directed to you when fake products are detected nearby.
             </div>
 
-            <div style={{ background: "#0D2E24", border: "1px solid #009B82", borderRadius: 10, padding: "16px", textAlign: "left", marginBottom: 20 }}>
-              <div style={{ fontSize: 11, fontWeight: 600, color: "#00C9A7", marginBottom: 10 }}>You're live on the network</div>
+            <div style={{ background: "#2E100B", border: "1px solid #B92D17", borderRadius: 10, padding: "16px", textAlign: "left", marginBottom: 20 }}>
+              <div style={{ fontSize: 11, fontWeight: 600, color: "#E5391F", marginBottom: 10 }}>You're live on the network</div>
               {[
-                "Your pharmacy appears in the vendor locator",
+                "Your vendor appears in the vendor locator",
                 "Customers can find and pay you via Squad",
                 "You get notified when a customer is directed to you",
                 "Manage your products and prices from your portal",
               ].map((item, i) => (
                 <div key={i} style={{ display: "flex", gap: 8, marginBottom: 7 }}>
-                  <span style={{ color: "#00C9A7", fontSize: 11, flexShrink: 0 }}>✓</span>
+                  <span style={{ color: "#E5391F", fontSize: 11, flexShrink: 0 }}>✓</span>
                   <span style={{ fontSize: 11, color: "#666" }}>{item}</span>
                 </div>
               ))}
@@ -329,13 +310,13 @@ export default function VendorRegisterPage() {
 
             <button
               onClick={() => navigate("/login")}
-              style={{ width: "100%", background: "#00C9A7", color: "#000", border: "none", borderRadius: 8, padding: "12px", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", marginBottom: 10 }}>
+              style={{ width: "100%", background: "#E5391F", color: "#fff", border: "none", borderRadius: 8, padding: "12px", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", marginBottom: 10 }}>
               Login to Vendor Portal →
             </button>
             <button
               onClick={() => { setStep(0); setForm({ pharmacy_name: "", owner_name: "", email: "", phone: "", address: "", city: "", state: "", password: "", confirm_password: "", products: [] }); }}
               style={{ width: "100%", background: "transparent", color: "#555", border: "1px solid #2A2A2A", borderRadius: 8, padding: "11px", fontSize: 12, cursor: "pointer", fontFamily: "inherit" }}>
-              Register Another Pharmacy
+              Register Another Vendor
             </button>
           </div>
         )}

@@ -59,7 +59,7 @@ export default function VendorPortal() {
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
         <div>
-          <div style={{ fontSize: 11, color: "#00C9A7", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 4 }}>Vendor Portal</div>
+          <div style={{ fontSize: 11, color: "#E5391F", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 4 }}>Vendor Portal</div>
           <div style={{ fontSize: 22, fontWeight: 700 }}>{vendor.pharmacy_name}</div>
           <div style={{ fontSize: 12, color: "#555", marginTop: 2 }}>{vendor.address}, {vendor.city} · {vendor.phone}</div>
         </div>
@@ -73,7 +73,7 @@ export default function VendorPortal() {
       {/* Stats */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12, marginBottom: 20 }}>
         {[
-          { label: "Products listed",      value: vendor.products?.length || 0,  color: "#00C9A7" },
+          { label: "Products listed",      value: vendor.products?.length || 0,  color: "#E5391F" },
           { label: "Customers directed",   value: vendor.orders_count || 0,      color: "#fff"    },
           { label: "Revenue via Squad",    value: `₦${(vendor.revenue || 0).toLocaleString()}`, color: "#43A047" },
         ].map((m, i) => (
@@ -87,7 +87,7 @@ export default function VendorPortal() {
       {/* Tabs */}
       <div style={{ display: "flex", gap: 4, borderBottom: "1px solid #2A2A2A", marginBottom: 20 }}>
         {["products", "orders", "settings"].map(t => (
-          <button key={t} onClick={() => setTab(t)} style={{ background: "transparent", border: "none", borderBottom: `2px solid ${tab === t ? "#00C9A7" : "transparent"}`, color: tab === t ? "#00C9A7" : "#555", padding: "10px 18px", fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit", textTransform: "capitalize", marginBottom: -1 }}>
+          <button key={t} onClick={() => setTab(t)} style={{ background: "transparent", border: "none", borderBottom: `2px solid ${tab === t ? "#E5391F" : "transparent"}`, color: tab === t ? "#E5391F" : "#555", padding: "10px 18px", fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit", textTransform: "capitalize", marginBottom: -1 }}>
             {t}
           </button>
         ))}
@@ -106,7 +106,7 @@ export default function VendorPortal() {
               Cancel
             </button>
             <button onClick={saveProducts} disabled={saving}
-              style={{ background: "#00C9A7", color: "#000", border: "none", borderRadius: 7, padding: "7px 16px", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
+              style={{ background: "#E5391F", color: "#fff", border: "none", borderRadius: 7, padding: "7px 16px", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
               {saving ? "Saving..." : "Save Changes"}
             </button>
           </>
@@ -116,12 +116,12 @@ export default function VendorPortal() {
             setEditing(true);
             setProducts(p => [...p, { name: "", price: 0, in_stock: true }]);
           }}
-          style={{ background: "#00C9A7", color: "#000", border: "none", borderRadius: 7, padding: "7px 16px", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
+          style={{ background: "#E5391F", color: "#fff", border: "none", borderRadius: 7, padding: "7px 16px", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
           + Add Product
         </button>
         {!editing && products.length > 0 && (
           <button onClick={() => setEditing(true)}
-            style={{ background: "transparent", color: "#00C9A7", border: "1px solid rgba(0,201,167,0.3)", borderRadius: 7, padding: "7px 16px", fontSize: 12, cursor: "pointer", fontFamily: "inherit" }}>
+            style={{ background: "transparent", color: "#E5391F", border: "1px solid rgba(229,57,31,0.3)", borderRadius: 7, padding: "7px 16px", fontSize: 12, cursor: "pointer", fontFamily: "inherit" }}>
             Edit Prices
           </button>
         )}
@@ -138,7 +138,7 @@ export default function VendorPortal() {
             setEditing(true);
             setProducts([{ name: "", price: 0, in_stock: true }]);
           }}
-          style={{ background: "#00C9A7", color: "#000", border: "none", borderRadius: 8, padding: "11px 24px", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
+          style={{ background: "#E5391F", color: "#fff", border: "none", borderRadius: 8, padding: "11px 24px", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
           + Add First Product
         </button>
       </div>
@@ -183,7 +183,7 @@ export default function VendorPortal() {
             ) : (
               <>
                 <div style={{ fontSize: 13, color: "#fff" }}>{p.name}</div>
-                <div style={{ fontSize: 13, color: "#00C9A7", fontWeight: 600 }}>₦{(p.price || 0).toLocaleString()}</div>
+                <div style={{ fontSize: 13, color: "#E5391F", fontWeight: 600 }}>₦{(p.price || 0).toLocaleString()}</div>
                 <div style={{ fontSize: 11, fontWeight: 600, color: p.in_stock ? "#43A047" : "#E53935" }}>
                   {p.in_stock ? "✓ In Stock" : "Out of Stock"}
                 </div>
@@ -197,7 +197,7 @@ export default function VendorPortal() {
           <button
             onClick={addProduct}
             style={{ width: "100%", background: "transparent", border: "2px dashed #2A2A2A", color: "#555", borderRadius: 8, padding: "11px", fontSize: 12, cursor: "pointer", fontFamily: "inherit", marginTop: 10, transition: "border-color 0.2s" }}
-            onMouseEnter={e => e.currentTarget.style.borderColor = "#00C9A7"}
+            onMouseEnter={e => e.currentTarget.style.borderColor = "#E5391F"}
             onMouseLeave={e => e.currentTarget.style.borderColor = "#2A2A2A"}>
             + Add Another Product
           </button>
@@ -223,11 +223,11 @@ export default function VendorPortal() {
     <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>Incoming Customer Orders</div>
     <div style={{ fontSize: 11, color: "#555", marginBottom: 20 }}>Customers directed here after scanning a fake product near you</div>
 
-    <div style={{ background: "rgba(0,201,167,0.05)", border: "1px solid rgba(0,201,167,0.15)", borderRadius: 8, padding: "12px 14px", marginBottom: 20 }}>
-      <div style={{ fontSize: 11, color: "#00C9A7", fontWeight: 600, marginBottom: 4 }}>How it works</div>
+    <div style={{ background: "rgba(229,57,31,0.05)", border: "1px solid rgba(229,57,31,0.15)", borderRadius: 8, padding: "12px 14px", marginBottom: 20 }}>
+      <div style={{ fontSize: 11, color: "#E5391F", fontWeight: 600, marginBottom: 4 }}>How it works</div>
       <div style={{ fontSize: 11, color: "#666", lineHeight: 1.7 }}>
         1. Customer scans a fake product near your location<br/>
-        2. Flux directs them to your pharmacy<br/>
+        2. Mantios directs them to your vendor<br/>
         3. They pay via Squad and get a receipt code<br/>
         4. They show you the code — you verify and hand over the product<br/>
         5. Payment arrives in your Squad account automatically
@@ -246,7 +246,7 @@ export default function VendorPortal() {
         </thead>
         <tbody>
           <tr style={{ borderBottom: "1px solid #1A1A1A" }}>
-            <td style={{ padding: "10px", fontSize: 12, color: "#00C9A7", fontFamily: "monospace" }}>VS-ABC123</td>
+            <td style={{ padding: "10px", fontSize: 12, color: "#E5391F", fontFamily: "monospace" }}>VS-ABC123</td>
             <td style={{ padding: "10px", fontSize: 12, color: "#fff" }}>Coartem</td>
             <td style={{ padding: "10px", fontSize: 12, color: "#43A047", fontWeight: 600 }}>₦4,500</td>
             <td style={{ padding: "10px" }}><span style={{ fontSize: 10, color: "#43A047", background: "rgba(67,160,71,0.1)", padding: "2px 8px", borderRadius: 4 }}>Paid</span></td>
@@ -271,7 +271,7 @@ export default function VendorPortal() {
         <div style={{ background: "#141414", border: "1px solid #2A2A2A", borderRadius: 12, padding: "20px 24px" }}>
           <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>Account Settings</div>
           {[
-            ["Pharmacy Name",  vendor.pharmacy_name],
+            ["Vendor Name",  vendor.pharmacy_name],
             ["Owner Name",     vendor.owner_name],
             ["Email",          vendor.email],
             ["Phone",          vendor.phone],
