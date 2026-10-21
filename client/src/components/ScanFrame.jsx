@@ -1,4 +1,5 @@
-// Swap <Tube /> for your product image: <img src="/tube.png" className="h-[250px]" alt="" />
+
+import cream from "../assets/img/88e2061e8c09ff06d3ab40f1ab5ef599fd71c708.png";
 function Tube() {
   return (
     <svg width="124" height="250" viewBox="0 0 124 250" aria-hidden="true">
@@ -30,7 +31,7 @@ export default function ScanFrame() {
       <span className={`${corner} right-0 top-0 rounded-tr-lg border-r border-t`} />
       <span className={`${corner} bottom-0 left-0 rounded-bl-lg border-b border-l`} />
       <span className={`${corner} bottom-0 right-0 rounded-br-lg border-b border-r`} />
-      <div className="absolute inset-0 grid place-items-center"><Tube /></div>
+      <div className="absolute inset-0 grid place-items-center"><img src={cream} className="h-[250px]" alt="" /></div>
       <div className="absolute -left-[17px] -right-[17px] top-1/2 animate-scan border-t border-dashed border-red-600" />
     </div>
   );
