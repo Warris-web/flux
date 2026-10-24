@@ -380,7 +380,10 @@ export default function ScanPage() {
           )}
           {phase === "result" && result && (
             <div className="disclaimer-box">
-              Mantios assesses visible packaging characteristics. Its assessment is not a guarantee of 100% product or content authentication.
+              <span className="disclaimer-icon">ⓘ</span>
+              <span className="disclaimer-boxspan">
+                Mantios assesses visible packaging characteristics. Its assessment is not a guarantee of 100% product or content authentication.
+              </span>
             </div>
           )}
           {phase === "idle" && (
@@ -769,16 +772,26 @@ export default function ScanPage() {
             border-radius: 8px;
             background: #111;
             font-size: 10.5px;
-            color: #666;
+            color: #ffc0c0;
             line-height: 1.5;
           }
+            .disclaimer-boxspan{
+                  padding-left: 3px;
+            }
           .disclaimer-note {
             margin-top: 12px;
             font-size: 10px;
-            color: #444;
+            color: #ffc0c0;
             text-align: center;
             line-height: 1.5;
+            /* position: fixed; */
+            /* bottom: 25px; */
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            height: 35vh;
           }
+            
         .verdict-action-box {
           margin-top: 14px;
           border: 1px solid;
