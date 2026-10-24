@@ -37,7 +37,7 @@ export default function LandingPage() {
       {/* Hero */}
       <section className="relative mx-auto flex max-w-[1240px] flex-col items-center px-6 pb-24 pt-[62px] text-center">
         <h1 className="max-w-[960px] text-[40px] font-normal leading-[1.17] tracking-[-0.02em] sm:text-[56px]">
-          Verify suspicious packaging in your beauty and pharmaceutical products
+          Verify authenticity of skincare and cosmetic products
         </h1>
         <p className={`mt-6 max-w-[600px] text-[16px] leading-[25px] ${muted}`}>
           Mantios identifies suspicious packaging inconsistencies in skincare and cosmetic products,
