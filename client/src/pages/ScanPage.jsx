@@ -378,6 +378,16 @@ export default function ScanPage() {
               <span style={{ fontSize: 11, color: "#888" }}>{result.recommendation}</span>
             </div>
           )}
+          {phase === "result" && result && (
+            <div className="disclaimer-box">
+              Mantios assesses visible packaging characteristics. Its assessment is not a guarantee of 100% product or content authentication.
+            </div>
+          )}
+          {phase === "idle" && (
+            <div className="disclaimer-note">
+              Mantios assesses visible packaging characteristics only. Results are not a guarantee of authenticity.
+            </div>
+          )}
 
           {phase === "result" && result?.verdict === "COUNTERFEIT" && (
             <div className="verdict-action-box" style={{ background: "rgba(229,57,31,0.06)", borderColor: "rgba(229,57,31,0.15)" }}>
@@ -752,6 +762,23 @@ export default function ScanPage() {
           border-radius: 8px;
           padding: 10px 14px;
         }
+          .disclaimer-box {
+            margin-top: 10px;
+            padding: 10px 14px;
+            border: 1px solid #2A2A2A;
+            border-radius: 8px;
+            background: #111;
+            font-size: 10.5px;
+            color: #666;
+            line-height: 1.5;
+          }
+          .disclaimer-note {
+            margin-top: 12px;
+            font-size: 10px;
+            color: #444;
+            text-align: center;
+            line-height: 1.5;
+          }
         .verdict-action-box {
           margin-top: 14px;
           border: 1px solid;
@@ -860,6 +887,7 @@ export default function ScanPage() {
             font-size: 9px;
           }
         }
+
       `}</style>
     </div>
   );
