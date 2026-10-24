@@ -396,7 +396,7 @@ export default function ScanPage() {
             <div className="verdict-action-box" style={{ background: "rgba(229,57,31,0.06)", borderColor: "rgba(229,57,31,0.15)" }}>
               <div style={{ fontSize: 11, fontWeight: 600, color: "#E5391F", marginBottom: 4 }}>Verified Vendors Nearby</div>
               <div style={{ fontSize: 11, color: "#666", lineHeight: 1.6 }}>
-                3 vendors within 1.2km carry genuine {product.label}. Payment via Squad-powered vendor links.
+                3 vendors within 1.2km carry genuine {product.label}. Payment via Paystack-powered vendor links.
               </div>
               <button
                 onClick={() => navigate(`/vendor/locator?product=${product.label}&city=Lagos`)}

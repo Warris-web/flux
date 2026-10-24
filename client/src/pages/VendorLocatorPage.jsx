@@ -134,7 +134,7 @@ useEffect(() => {
         <div style={{ fontSize: 12, color: "#999" }}>
           The <strong style={{ color: "#fff" }}>{product}</strong> you scanned was flagged as{" "}
           <strong style={{ color: "#E53935" }}>COUNTERFEIT</strong>. Purchase from a verified vendor below.
-          Pay via Squad and receive a receipt code to show at the vendor.
+          Pay via Paystack and receive a receipt code to show at the vendor.
         </div>
       </div>
 
@@ -177,7 +177,7 @@ useEffect(() => {
             <div style={{ background: "rgba(229,57,31,0.05)", border: "1px solid rgba(229,57,31,0.15)", borderRadius: 8, padding: "10px 12px", marginBottom: 16 }}>
               <div style={{ fontSize: 11, color: "#E5391F", fontWeight: 600, marginBottom: 4 }}>How to use</div>
               <div style={{ fontSize: 11, color: "#666", lineHeight: 1.7 }}>
-                1. Tap <strong style={{ color: "#fff" }}>Pay via Squad</strong> below to complete payment<br/>
+                1. Tap <strong style={{ color: "#fff" }}>Pay via Paystack</strong> below to complete payment<br/>
                 2. Return to this page after payment<br/>
                 3. Show this receipt code at <strong style={{ color: "#fff" }}>{receipt.vendor}</strong><br/>
                 4. They verify the code and hand you genuine {receipt.product}
@@ -190,7 +190,7 @@ useEffect(() => {
                 <button
                   onClick={() => { window.location.href = receipt.payment_url; }}
                   style={{ width: "100%", background: "#E5391F", color: "#fff", border: "none", borderRadius: 8, padding: "13px", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
-                  Pay ₦{(receipt.price || 0).toLocaleString()} via Squad →
+                  Pay ₦{(receipt.price || 0).toLocaleString()} via Paystack →
                 </button>
               )}
               <div style={{ display: "flex", gap: 10 }}>
@@ -300,7 +300,7 @@ useEffect(() => {
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
                     <div>
                       <div style={{ fontSize: 13, fontWeight: 600 }}>Pay for {selProd.name}</div>
-                      <div style={{ fontSize: 11, color: "#555" }}>at {vendor.pharmacy_name} · Secured by Squad</div>
+                      <div style={{ fontSize: 11, color: "#555" }}>at {vendor.pharmacy_name} · Secured by Paystack</div>
                     </div>
                     <div style={{ fontSize: 20, fontWeight: 700, color: "#E5391F" }}>
                       {selProd.price > 0 ? `₦${selProd.price.toLocaleString()}` : "—"}
@@ -316,7 +316,7 @@ useEffect(() => {
                       onClick={() => initiatePayment(vendor, selProd)}
                       disabled={paying || selProd.price <= 0}
                       style={{ flex: 1, background: "#E5391F", color: "#fff", border: "none", borderRadius: 8, padding: "11px", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", opacity: paying ? 0.7 : 1 }}>
-                      {paying ? "Processing..." : selProd.price > 0 ? `Pay ₦${selProd.price.toLocaleString()} via Squad →` : "Call for price"}
+                      {paying ? "Processing..." : selProd.price > 0 ? `Pay ₦${selProd.price.toLocaleString()} via Paystack →` : "Call for price"}
                     </button>
                   </div>
                 </div>

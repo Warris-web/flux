@@ -163,7 +163,7 @@ export default function VendorRegisterPage() {
   <div>
     <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 6 }}>Products & Prices</div>
     <div style={{ fontSize: 11, color: "#555", marginBottom: 14 }}>
-      Add the genuine products you stock with your selling price. Customers can pay you via Squad.
+      Add the genuine products you stock with your selling price. Customers can pay you via Paystack.
     </div>
 
     {/* Product list */}
@@ -218,14 +218,14 @@ export default function VendorRegisterPage() {
           <div style={{ textAlign: "center", padding: "20px 0" }}>
             <div style={{ width: 68, height: 68, borderRadius: "50%", background: "rgba(229,57,31,0.1)", border: "2px solid #E5391F", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 30, margin: "0 auto 16px" }}>✓</div>
             <div style={{ fontSize: 18, fontWeight: 700, color: "#E5391F", marginBottom: 8 }}>You're on the network!</div>
-            <div style={{ fontSize: 12, color: "#666", marginBottom: 20 }}>Your vendor will appear in the Mantios vendor locator once payment is confirmed via Squad webhook.</div>
+            <div style={{ fontSize: 12, color: "#666", marginBottom: 20 }}>Your vendor will appear in the Mantios vendor locator once payment is confirmed via Paystack webhook.</div>
             <div style={{ background: "#2E100B", border: "1px solid #B92D17", borderRadius: 8, padding: "14px 16px", textAlign: "left", marginBottom: 16 }}>
               <div style={{ fontSize: 11, fontWeight: 600, color: "#E5391F", marginBottom: 8 }}>What happens next</div>
               {[
-                "Squad payment confirmed via webhook",
+                "Paystack payment confirmed via webhook",
                 "Vendor listed on Mantios vendor network",
                 "Customers directed to you when fake products detected nearby",
-                "You receive Squad-powered payments from verified customers",
+                "You receive Paystack-powered payments from verified customers",
               ].map((item, i) => (
                 <div key={i} style={{ display: "flex", gap: 8, marginBottom: 6 }}>
                   <span style={{ color: "#E5391F", fontSize: 11 }}>✓</span>
@@ -280,7 +280,7 @@ export default function VendorRegisterPage() {
                 onClick={submit}
                 disabled={loading || !form.password || form.password !== form.confirm_password || form.password.length < 6}
                 style={{ ...btn, flex: 1, opacity: loading || !form.password || form.password !== form.confirm_password || form.password.length < 6 ? 0.6 : 1 }}>
-                {loading ? "Processing..." : "Pay ₦10,000 via Squad →"}
+                {loading ? "Processing..." : "Pay ₦10,000 via Paystack →"}
               </button>
             </div>
           </div>
@@ -297,7 +297,7 @@ export default function VendorRegisterPage() {
               <div style={{ fontSize: 11, fontWeight: 600, color: "#E5391F", marginBottom: 10 }}>You're live on the network</div>
               {[
                 "Your vendor appears in the vendor locator",
-                "Customers can find and pay you via Squad",
+                "Customers can find and pay you via Paystack",
                 "You get notified when a customer is directed to you",
                 "Manage your products and prices from your portal",
               ].map((item, i) => (

@@ -100,11 +100,7 @@ export default function LandingPage() {
             </div>
           ))}
         </div>
-      </section>
-
-      <footer className={`relative mx-auto max-w-[1240px] px-6 pb-10 text-[14px] ${muted}`}>
-        Payments on Mantios are processed securely by Squad.
-      </footer> */}
+      </section> */}
     </main>
   );
 }

@@ -75,7 +75,7 @@ export default function VendorPortal() {
         {[
           { label: "Products listed",      value: vendor.products?.length || 0,  color: "#E5391F" },
           { label: "Customers directed",   value: vendor.orders_count || 0,      color: "#fff"    },
-          { label: "Revenue via Squad",    value: `₦${(vendor.revenue || 0).toLocaleString()}`, color: "#43A047" },
+          { label: "Revenue via Paystack",    value: `₦${(vendor.revenue || 0).toLocaleString()}`, color: "#43A047" },
         ].map((m, i) => (
           <div key={i} style={{ background: "#141414", border: "1px solid #2A2A2A", borderRadius: 10, padding: "16px 18px" }}>
             <div style={{ fontSize: 11, color: "#555", marginBottom: 6 }}>{m.label}</div>
@@ -132,7 +132,7 @@ export default function VendorPortal() {
       <div style={{ padding: "40px 0", textAlign: "center" }}>
         <div style={{ fontSize: 32, marginBottom: 12 }}>📦</div>
         <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 6 }}>No products listed yet</div>
-        <div style={{ fontSize: 12, color: "#555", marginBottom: 20 }}>Add the genuine products you stock with their prices. Customers pay you via Squad.</div>
+        <div style={{ fontSize: 12, color: "#555", marginBottom: 20 }}>Add the genuine products you stock with their prices. Customers pay you via Paystack.</div>
         <button
           onClick={() => {
             setEditing(true);
@@ -210,11 +210,11 @@ export default function VendorPortal() {
       {/* Orders tab */}
       {/* {tab === "orders" && (
         <div style={{ background: "#141414", border: "1px solid #2A2A2A", borderRadius: 12, padding: "20px 24px" }}>
-          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>Incoming Orders via Squad</div>
+          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>Incoming Orders via Paystack</div>
           <div style={{ padding: "32px 0", textAlign: "center", color: "#555" }}>
             <div style={{ fontSize: 32, marginBottom: 12 }}>📦</div>
             <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 6 }}>No orders yet</div>
-            <div style={{ fontSize: 11 }}>When customers scan a fake product near you, they'll be directed here. Squad payments will appear as they come in.</div>
+            <div style={{ fontSize: 11 }}>When customers scan a fake product near you, they'll be directed here. Paystack payments will appear as they come in.</div>
           </div>
         </div>
       )} */}
@@ -228,13 +228,13 @@ export default function VendorPortal() {
       <div style={{ fontSize: 11, color: "#666", lineHeight: 1.7 }}>
         1. Customer scans a fake product near your location<br/>
         2. Mantios directs them to your vendor<br/>
-        3. They pay via Squad and get a receipt code<br/>
+        3. They pay via Paystack and get a receipt code<br/>
         4. They show you the code — you verify and hand over the product<br/>
-        5. Payment arrives in your Squad account automatically
+        5. Payment arrives in your Paystack account automatically
       </div>
     </div>
 
-    {/* Mock recent orders — replace with real data when Squad webhooks fire */}
+    {/* Mock recent orders — replace with real data when Paystack webhooks fire */}
     {vendor.orders_count > 0 ? (
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>

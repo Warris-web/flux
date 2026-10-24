@@ -23,7 +23,7 @@ import axios                 from "axios";
 
 
 const API   = import.meta.env.VITE_API_URL;
-const STEPS = ["Company Details", "Squad Payment", "Done"];
+const STEPS = ["Company Details", "Paystack Payment", "Done"];
 
 export default function OnboardPage() {
 
@@ -170,8 +170,7 @@ const submit = async () => {
         {/* Step 1 — Payment */}
         {step === 1 && (
           <div>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 6 }}>Squad Payment</div>
-            <div style={{ fontSize: 11, color: "#555", marginBottom: 18 }}>Powered by Squad Checkout API · GTBank SquadCo</div>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 6 }}>Paystack Payment</div>
 
             <div style={{ background: "#111", border: "1px solid #2A2A2A", borderRadius: 10, padding: "16px 18px", marginBottom: 16 }}>
               {[
@@ -217,7 +216,7 @@ const submit = async () => {
             <div style={{ display: "flex", gap: 10 }}>
               <button onClick={() => setStep(0)} style={sec}>Back</button>
               <button onClick={submit} disabled={loading} style={{ ...btn, flex: 1, opacity: loading ? 0.7 : 1 }}>
-                {loading ? "Processing..." : "Pay ₦50,000 via Squad →"}
+                {loading ? "Processing..." : "Pay ₦50,000 via Paystack →"}
               </button>
             </div>
           </div>
