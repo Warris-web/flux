@@ -1,12 +1,20 @@
+
+
 // import { useState, useEffect } from "react";
-// import { useSearchParams, useNavigate } from "react-router-dom";
+// import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 // import axios from "axios";
+// import { useAuth } from "../context/AuthContext";
+// import ReceiptModal from "../components/ReceiptModal";
+// import { fromApi, naira } from "../utils/receipt";
+// import { addOrderCode, saveCustomer, getCustomer } from "../utils/orderStorage";
 
 // const API = import.meta.env.VITE_API_URL;
 
 // export default function VendorLocatorPage() {
 //   const [searchParams] = useSearchParams();
 //   const navigate       = useNavigate();
+//   const location       = useLocation();
+//   const { user }       = useAuth();   // logged-in customer: name/email come from here
 //   const product        = searchParams.get("product") || "Coartem";
 //   const city           = searchParams.get("city")    || "Lagos";
 
@@ -16,14 +24,17 @@
 //   const [selProd,  setSelProd]  = useState(null);
 //   const [receipt,  setReceipt]  = useState(null);
 //   const [paying,   setPaying]   = useState(false);
+//   const [checking, setChecking] = useState(false);
 
-//   const [orderForm, setOrderForm] = useState({
-//   mode: "pickup",
-//   customer_name: "",
-//   customer_phone: "",
-//   delivery_address: "",
-//   notes: "",
-// });
+//   // only the pickup/delivery choice + delivery address are asked now
+//   const [orderForm, setOrderForm] = useState(() => ({
+//     mode: "pickup",
+//     delivery_address: getCustomer().delivery_address || "",
+//   }));
+
+//   // ── derived totals (display only — the server recalculates the real amount) ──
+//   const deliveryFee = orderForm.mode === "delivery" ? Number(selProd?.delivery_fee || 0) : 0;
+//   const totalToPay  = Number(selProd?.price || 0) + deliveryFee;
 
 //   useEffect(() => {
 //     axios.get(`${API}/api/vendors/nearby`, { params: { city, product } })
@@ -32,55 +43,78 @@
 //       .finally(() => setLoading(false));
 //   }, []);
 
-// useEffect(() => {
-//   const payment = searchParams.get("payment");
-//   const code    = searchParams.get("code");
-//   const pname   = searchParams.get("product") || product;
+//   // ── user comes back from Paystack: ?payment=success&code=VS-XXXX ──
+//   const loadReceipt = async (code) => {
+//     const { data } = await axios.get(`${API}/api/orders/receipt/${encodeURIComponent(code)}`);
+//     setReceipt(fromApi(data.order));
+//     addOrderCode(code);
+//   };
 
-//   if (payment === "success" && code) {
-//     setReceipt({
-//       code,
-//       vendor:       "Your verified vendor",
-//       address:      "Check your selected vendor above",
-//       phone:        "—",
-//       product:      pname,
-//       price:        0,
-//       status:       "confirmed",
-//       generated_at: new Date().toLocaleString("en-NG"),
-//       payment_url:  null,
-//     });
-//   }
-// }, []);
+//   useEffect(() => {
+//     const payment = searchParams.get("payment");
+//     const code    = searchParams.get("code");
+//     if (payment === "success" && code) {
+//       loadReceipt(code).catch(() => alert("Payment received, but we couldn't load your receipt. Check My Orders."));
+//     }
+//   }, []);
+
+//   const refreshReceipt = async () => {
+//     if (!receipt) return;
+//     setChecking(true);
+//     try { await loadReceipt(receipt.code); }
+//     catch { alert("Couldn't check payment status. Try again."); }
+//     finally { setChecking(false); }
+//   };
 
 //   const initiatePayment = async (vendor, prod) => {
+//     if (["demo1", "demo2", "demo3"].includes(vendor._id))
+//       return alert("This is a demo vendor. Payments work with registered vendors only.");
+//     if (!user) {
+//       // not logged in -> send to login, then come back to this exact page
+//       return navigate("/login", { state: { from: location.pathname + location.search } });
+//     }
+//     if (orderForm.mode === "delivery" && !orderForm.delivery_address.trim())
+//       return alert("Enter your delivery address");
+
 //     setPaying(true);
 //     try {
-//       const isDemoVendor = ["demo1","demo2","demo3"].includes(vendor._id);
 //       const { data } = await axios.post(`${API}/api/vendors/pay`, {
-//         vendor_id:      isDemoVendor ? null : vendor._id,
-//         product_name:   prod.name,
-//         amount:         prod.price,
-//         customer_email: "customer@mantios.com",
+//         vendor_id:        vendor._id,
+//         product_name:     prod.name,
+//         order_mode:       orderForm.mode,
+//         delivery_address: orderForm.mode === "delivery" ? orderForm.delivery_address : "",
+//         // name + email are taken from the logged-in account on the server
 //       });
 
+//       // keep it in this device's history straight away (shows as "Awaiting payment")
+//       addOrderCode(data.receipt_code);
+//       saveCustomer(orderForm);
+
 //       setReceipt({
-//         code:         data.receipt_code,
-//         vendor:       vendor.pharmacy_name,
-//         address:      vendor.address,
-//         phone:        vendor.phone,
-//         product:      prod.name,
-//         price:        prod.price,
-//         status:       "pending",
-//         generated_at: new Date().toLocaleString("en-NG"),
-//         payment_url:  data.payment_url || null,
+//         code:            data.receipt_code,
+//         status:          data.mock ? "paid" : "pending",
+//         mode:            data.order_mode,
+//         product:         data.product_name,
+//         productAmount:   data.product_amount,
+//         deliveryFee:     data.delivery_fee,
+//         total:           data.total_amount,
+//         vendor:          vendor.pharmacy_name,
+//         address:         vendor.address,
+//         phone:           vendor.phone,
+//         customerName:    user.name,
+//         deliveryAddress: orderForm.mode === "delivery" ? orderForm.delivery_address : "",
+//         date:            new Date().toISOString(),
+//         paymentUrl:      data.payment_url || null,
 //       });
 
 //       setSelected(null);
 //       setSelProd(null);
 //     } catch (err) {
-//       alert("Payment failed. Please try again.");
+//       alert(err.response?.data?.error || "Payment failed. Please try again.");
 //     } finally { setPaying(false); }
 //   };
+
+//   const inputStyle = { background: "#0A0A0A", border: "1px solid #2A2A2A", borderRadius: 6, padding: "9px 12px", fontSize: 12, color: "#fff", outline: "none", fontFamily: "inherit" };
 
 //   return (
 //     <div style={{ padding: 24, maxWidth: 960, margin: "0 auto" }}>
@@ -90,11 +124,14 @@
 //         <button onClick={() => navigate(-1)} style={{ background: "#141414", border: "1px solid #2A2A2A", borderRadius: 7, padding: "8px 14px", fontSize: 12, color: "#666", cursor: "pointer", fontFamily: "inherit" }}>
 //           ← Back
 //         </button>
-//         <div>
+//         <div style={{ flex: 1 }}>
 //           <div style={{ fontSize: 11, color: "#E53935", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 2 }}>Counterfeit Detected</div>
 //           <div style={{ fontSize: 18, fontWeight: 700 }}>Buy Genuine {product} Near You</div>
 //           <div style={{ fontSize: 12, color: "#555" }}>Mantios-verified vendors in {city}</div>
 //         </div>
+//         <button onClick={() => navigate("/orders")} style={{ background: "#141414", border: "1px solid #2A2A2A", borderRadius: 7, padding: "8px 14px", fontSize: 12, color: "#E5391F", cursor: "pointer", fontFamily: "inherit", flexShrink: 0 }}>
+//           My Orders
+//         </button>
 //       </div>
 
 //       {/* Alert */}
@@ -103,86 +140,19 @@
 //         <div style={{ fontSize: 12, color: "#999" }}>
 //           The <strong style={{ color: "#fff" }}>{product}</strong> you scanned was flagged as{" "}
 //           <strong style={{ color: "#E53935" }}>COUNTERFEIT</strong>. Purchase from a verified vendor below.
-//           Pay via Paystack and receive a receipt code to show at the vendor.
+//           Pay via Paystack, choose pickup or delivery, and download your receipt.
 //         </div>
 //       </div>
 
-//       {/* ── Receipt Modal ── */}
-//       {receipt && (
-//         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.92)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200, padding: 24 }}>
-//           <div style={{ background: "#141414", border: "1px solid #2A2A2A", borderRadius: 14, padding: 28, width: "100%", maxWidth: 420 }}>
-//             <div style={{ textAlign: "center", marginBottom: 20 }}>
-//               <div style={{ fontSize: 40, marginBottom: 10 }}>🧾</div>
-//               <div style={{ fontSize: 17, fontWeight: 700, color: "#E5391F", marginBottom: 4 }}>Your Receipt</div>
-//               <div style={{ fontSize: 11, color: "#555" }}>Show this code at the vendor after paying</div>
-//             </div>
+//       {/* Receipt modal */}
+//       <ReceiptModal
+//         receipt={receipt}
+//         checking={checking}
+//         onRefresh={refreshReceipt}
+//         onClose={() => setReceipt(null)}
+//       />
 
-//             {/* Receipt code */}
-//             <div style={{ background: "#0A0A0A", border: "2px dashed #E5391F", borderRadius: 10, padding: "18px", textAlign: "center", marginBottom: 16 }}>
-//               <div style={{ fontSize: 10, color: "#555", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.07em" }}>Receipt Code</div>
-//               <div style={{ fontSize: 30, fontWeight: 700, color: "#E5391F", fontFamily: "monospace", letterSpacing: 5 }}>
-//                 {receipt.code}
-//               </div>
-//             </div>
-
-//             {/* Details */}
-//             <div style={{ background: "#111", border: "1px solid #2A2A2A", borderRadius: 8, padding: "14px", marginBottom: 14 }}>
-//               {[
-//                 ["Vendor",    receipt.vendor],
-//                 ["Address",     receipt.address],
-//                 ["Phone",       receipt.phone],
-//                 ["Product",     receipt.product],
-//                 ["Amount",      `₦${(receipt.price || 0).toLocaleString()}`],
-//                 ["Date",        receipt.generated_at],
-//               ].map(([k, v]) => (
-//                 <div key={k} style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, fontSize: 12 }}>
-//                   <span style={{ color: "#555" }}>{k}</span>
-//                   <span style={{ color: k === "Amount" ? "#E5391F" : "#fff", fontWeight: k === "Amount" ? 700 : 400, textAlign: "right", maxWidth: "60%" }}>{v}</span>
-//                 </div>
-//               ))}
-//             </div>
-
-//             {/* Instructions */}
-//             <div style={{ background: "rgba(229,57,31,0.05)", border: "1px solid rgba(229,57,31,0.15)", borderRadius: 8, padding: "10px 12px", marginBottom: 16 }}>
-//               <div style={{ fontSize: 11, color: "#E5391F", fontWeight: 600, marginBottom: 4 }}>How to use</div>
-//               <div style={{ fontSize: 11, color: "#666", lineHeight: 1.7 }}>
-//                 1. Tap <strong style={{ color: "#fff" }}>Pay via Paystack</strong> below to complete payment<br/>
-//                 2. Return to this page after payment<br/>
-//                 3. Show this receipt code at <strong style={{ color: "#fff" }}>{receipt.vendor}</strong><br/>
-//                 4. They verify the code and hand you genuine {receipt.product}
-//               </div>
-//             </div>
-
-//             {/* Buttons */}
-//             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-//               {receipt.payment_url && (
-//                 <button
-//                   onClick={() => { window.location.href = receipt.payment_url; }}
-//                   style={{ width: "100%", background: "#E5391F", color: "#fff", border: "none", borderRadius: 8, padding: "13px", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
-//                   Pay ₦{(receipt.price || 0).toLocaleString()} via Paystack →
-//                 </button>
-//               )}
-//               <div style={{ display: "flex", gap: 10 }}>
-//                 <button
-//                   onClick={() => {
-//                     const text = `Mantios Receipt\nCode: ${receipt.code}\nVendor: ${receipt.vendor}\nAddress: ${receipt.address}\nPhone: ${receipt.phone}\nProduct: ${receipt.product}\nAmount: ₦${(receipt.price || 0).toLocaleString()}\nDate: ${receipt.generated_at}`;
-//                     navigator.clipboard?.writeText(text).then(() => alert("Receipt copied!")).catch(() => alert("Copy failed — please screenshot this page"));
-//                   }}
-//                   style={{ flex: 1, background: "#1A1A1A", color: "#666", border: "1px solid #2A2A2A", borderRadius: 8, padding: "11px", fontSize: 12, cursor: "pointer", fontFamily: "inherit" }}>
-//                   Copy Receipt
-//                 </button>
-//                 <button
-//                   onClick={() => setReceipt(null)}
-//                   style={{ flex: 1, background: "transparent", color: "#555", border: "1px solid #2A2A2A", borderRadius: 8, padding: "11px", fontSize: 12, cursor: "pointer", fontFamily: "inherit" }}>
-//                   Close
-//                 </button>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       )}
-
-//       {/* ── Content ── */}
+//       {/* Content */}
 //       {loading ? (
 //         <div style={{ padding: 40, color: "#555", textAlign: "center" }}>Finding verified vendors...</div>
 //       ) : vendors.length === 0 ? (
@@ -226,13 +196,14 @@
 //                     {vendor.products.map((p, j) => {
 //                       const pName      = typeof p === "string" ? p : (p?.name || "");
 //                       const pPrice     = typeof p === "string" ? 0 : (p?.price || 0);
+//                       const pDelivery  = typeof p === "string" ? 0 : (p?.delivery_fee || 0);
 //                       const pInStock   = typeof p === "string" ? true : (p?.in_stock !== false);
 //                       const isTarget   = pName.toLowerCase().includes(product.toLowerCase());
 //                       const isSelected = selected?._id === vendor._id && selProd?.name === pName;
 
 //                       return (
 //                         <div key={j}
-//                           onClick={() => pInStock ? (setSelected(vendor), setSelProd({ name: pName, price: pPrice, in_stock: pInStock })) : null}
+//                           onClick={() => pInStock ? (setSelected(vendor), setSelProd({ name: pName, price: pPrice, delivery_fee: pDelivery, in_stock: pInStock })) : null}
 //                           style={{
 //                             background:  isSelected ? "rgba(229,57,31,0.08)" : "#111",
 //                             border:     `1px solid ${isSelected ? "#E5391F" : isTarget ? "rgba(229,57,31,0.25)" : "#222"}`,
@@ -248,7 +219,7 @@
 //                             )}
 //                           </div>
 //                           <div style={{ fontSize: 17, fontWeight: 700, color: "#E5391F", marginBottom: 4 }}>
-//                             {pPrice > 0 ? `₦${pPrice.toLocaleString()}` : "Call for price"}
+//                             {pPrice > 0 ? naira(pPrice) : "Call for price"}
 //                           </div>
 //                           <div style={{ fontSize: 10, fontWeight: 600, color: pInStock ? "#43A047" : "#E53935" }}>
 //                             {pInStock ? "✓ In Stock" : "Out of Stock"}
@@ -263,18 +234,60 @@
 //                 )}
 //               </div>
 
-//               {/* Pay section — only when product selected from THIS vendor */}
+//               {/* Pay section — only when a product is selected from THIS vendor */}
 //               {selected?._id === vendor._id && selProd && (
 //                 <div style={{ background: "rgba(229,57,31,0.05)", border: "1px solid rgba(229,57,31,0.2)", borderRadius: 10, padding: "14px 16px" }}>
-//                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-//                     <div>
-//                       <div style={{ fontSize: 13, fontWeight: 600 }}>Pay for {selProd.name}</div>
-//                       <div style={{ fontSize: 11, color: "#555" }}>at {vendor.pharmacy_name} · Secured by Paystack</div>
+//                   <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 2 }}>Pay for {selProd.name}</div>
+//                   <div style={{ fontSize: 11, color: "#555", marginBottom: 14 }}>at {vendor.pharmacy_name} · Secured by Paystack</div>
+
+//                   {/* Pickup / Delivery */}
+//                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 12 }}>
+//                     {[
+//                       { key: "pickup",   title: "Pickup",   sub: "Collect from vendor", fee: 0 },
+//                       { key: "delivery", title: "Delivery", sub: "To your address",     fee: selProd.delivery_fee || 0 },
+//                     ].map(o => {
+//                       const active = orderForm.mode === o.key;
+//                       return (
+//                         <button key={o.key} type="button"
+//                           onClick={() => setOrderForm(f => ({ ...f, mode: o.key }))}
+//                           style={{
+//                             background: active ? "rgba(229,57,31,0.08)" : "#0A0A0A",
+//                             border: `1px solid ${active ? "rgba(229,57,31,0.4)" : "#2A2A2A"}`,
+//                             borderRadius: 10, padding: "12px 14px", color: "#fff", cursor: "pointer",
+//                             textAlign: "left", fontFamily: "inherit",
+//                           }}>
+//                           <div style={{ fontSize: 13, fontWeight: 600 }}>{o.title}</div>
+//                           <div style={{ fontSize: 11, color: "#666", marginTop: 2 }}>{o.sub}</div>
+//                           <div style={{ fontSize: 12, fontWeight: 600, color: active ? "#E5391F" : "#fff", marginTop: 6 }}>
+//                             {o.fee > 0 ? `+${naira(o.fee)}` : "Free"}
+//                           </div>
+//                         </button>
+//                       );
+//                     })}
+//                   </div>
+
+//                   {/* Customer details */}
+//                   <div style={{ display: "grid", gap: 8, marginBottom: orderForm.mode === "delivery" ? 12 : 0 }}>
+//                     {orderForm.mode === "delivery" && (
+//                       <textarea placeholder="Delivery address" rows={2} value={orderForm.delivery_address}
+//                         onChange={e => setOrderForm(f => ({ ...f, delivery_address: e.target.value }))}
+//                         style={{ ...inputStyle, resize: "none" }} />
+//                     )}
+//                   </div>
+
+//                   {/* Summary */}
+//                   <div style={{ borderTop: "1px solid #1A1A1A", paddingTop: 10, marginBottom: 12, fontSize: 12 }}>
+//                     <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6, color: "#999" }}>
+//                       <span>Product</span><span>{naira(selProd.price)}</span>
 //                     </div>
-//                     <div style={{ fontSize: 20, fontWeight: 700, color: "#E5391F" }}>
-//                       {selProd.price > 0 ? `₦${selProd.price.toLocaleString()}` : "—"}
+//                     <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, color: "#999" }}>
+//                       <span>Delivery fee</span><span>{deliveryFee > 0 ? naira(deliveryFee) : "Free"}</span>
+//                     </div>
+//                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: 15, fontWeight: 700 }}>
+//                       <span>Total</span><span style={{ color: "#E5391F" }}>{naira(totalToPay)}</span>
 //                     </div>
 //                   </div>
+
 //                   <div style={{ display: "flex", gap: 10 }}>
 //                     <button
 //                       onClick={() => { setSelected(null); setSelProd(null); }}
@@ -285,7 +298,7 @@
 //                       onClick={() => initiatePayment(vendor, selProd)}
 //                       disabled={paying || selProd.price <= 0}
 //                       style={{ flex: 1, background: "#E5391F", color: "#fff", border: "none", borderRadius: 8, padding: "11px", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", opacity: paying ? 0.7 : 1 }}>
-//                       {paying ? "Processing..." : selProd.price > 0 ? `Pay ₦${selProd.price.toLocaleString()} via Paystack →` : "Call for price"}
+//                       {paying ? "Processing..." : selProd.price > 0 ? `Pay ${naira(totalToPay)} via Paystack →` : "Call for price"}
 //                     </button>
 //                   </div>
 //                 </div>
@@ -409,6 +422,12 @@ export default function VendorLocatorPage() {
       // keep it in this device's history straight away (shows as "Awaiting payment")
       addOrderCode(data.receipt_code);
       saveCustomer(orderForm);
+
+      // go straight to Paystack — no pending receipt shown before payment
+      if (data.payment_url) {
+        window.location.href = data.payment_url;
+        return;
+      }
 
       setReceipt({
         code:            data.receipt_code,
