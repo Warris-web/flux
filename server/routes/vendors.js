@@ -34,7 +34,7 @@ router.get("/me",             auth(["vendor"]), getMyVendorProfile);
 router.put("/me/products",    auth(["vendor"]), updateProducts);
 router.get("/",               auth(["nafdac"]), getAllVendors);
 router.post("/activate",      auth(["nafdac"]), activateVendor);
-router.post("/pay", payVendor);
+router.post("/pay", auth(["user"]), payVendor);
 router.post("/activate-by-reference", activateByReference);
 
 module.exports = router;

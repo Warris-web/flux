@@ -79,6 +79,7 @@ app.options(/.*/, cors(corsOptions));
 
 app.use(express.json({ limit: "10mb" }));
 
+app.use("/api/orders", require("./routes/orders"));
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/scan", require("./routes/scan"));
 app.use("/api/brands", require("./routes/brands"));
@@ -86,6 +87,7 @@ app.use("/api/paystack", require("./routes/squad"));
 app.use("/api/dashboard", require("./routes/dashboard"));
 app.use("/api/vendors", require("./routes/vendors"));
 app.use("/api/products", require("./routes/products"));
+
 
 app.get("/", (req, res) =>
   res.json({ status: "VeraScann API running" })

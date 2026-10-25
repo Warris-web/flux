@@ -456,6 +456,10 @@
 const axios = require("axios");
 const Vendor = require("../models/Vendor");
 const User = require("../models/User");
+const Order = require("../models/Order");
+const { markOrderPaid } = require("../utils/orderPayment");
+
+
 
 exports.registerVendor = async (req, res) => {
   try {
@@ -596,6 +600,23 @@ exports.getMyVendorProfile = async (req, res) => {
   }
 };
 
+// exports.updateProducts = async (req, res) => {
+//   try {
+//     const { products } = req.body;
+
+//     let vendor = req.user.ref_id
+//       ? await Vendor.findById(req.user.ref_id)
+//       : await Vendor.findOne({ email: req.user.email });
+
+//     if (!vendor) return res.status(404).json({ error: "Vendor not found" });
+
+//     vendor = await Vendor.findByIdAndUpdate(vendor._id, { products }, { new: true });
+//     return res.json({ success: true, vendor });
+//   } catch (err) {
+//     return res.status(500).json({ error: err.message });
+//   }
+// };
+
 exports.updateProducts = async (req, res) => {
   try {
     const { products } = req.body;
@@ -603,10 +624,18 @@ exports.updateProducts = async (req, res) => {
     let vendor = req.user.ref_id
       ? await Vendor.findById(req.user.ref_id)
       : await Vendor.findOne({ email: req.user.email });
-
     if (!vendor) return res.status(404).json({ error: "Vendor not found" });
 
-    vendor = await Vendor.findByIdAndUpdate(vendor._id, { products }, { new: true });
+    const clean = (Array.isArray(products) ? products : [])
+      .filter((p) => p && String(p.name || "").trim())
+      .map((p) => ({
+        name: String(p.name).trim(),
+        price: Math.max(0, Number(p.price) || 0),
+        delivery_fee: Math.max(0, Number(p.delivery_fee) || 0),
+        in_stock: p.in_stock !== false,
+      }));
+
+    vendor = await Vendor.findByIdAndUpdate(vendor._id, { products: clean }, { new: true });
     return res.json({ success: true, vendor });
   } catch (err) {
     return res.status(500).json({ error: err.message });
@@ -633,72 +662,152 @@ exports.getAllVendors = async (req, res) => {
   }
 };
 
+// exports.payVendor = async (req, res) => {
+//   try {
+//     const { vendor_id, product_name, amount, customer_email } = req.body;
+
+//     if (!vendor_id || !product_name || !amount)
+//       return res.status(400).json({ error: "vendor_id, product_name and amount required" });
+
+//     const vendor = await Vendor.findById(vendor_id);
+//     if (!vendor) return res.status(404).json({ error: "Vendor not found" });
+
+//     const receipt_code = `VS-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+
+//     if (!process.env.PAYSTACK_SECRET_KEY || process.env.PAYSTACK_SECRET_KEY.trim() === "") {
+//       return res.json({
+//         success: true,
+//         mock: true,
+//         receipt_code,
+//         payment_url: null,
+//         vendor_name: vendor.pharmacy_name,
+//         product_name,
+//         amount,
+//       });
+//     }
+
+//     const paystackRes = await axios.post(
+//       `${process.env.PAYSTACK_BASE_URL}/transaction/initialize`,
+//       {
+//         amount: String(amount * 100),
+//         email: customer_email || "customer@verascann.com",
+//         currency: "NGN",
+//         reference: receipt_code,
+//         pass_charge: false,
+//         customer: {
+//           email: customer_email || "customer@verascann.com",
+//           name: "VeraScann Customer",
+//         },
+//         metadata: {
+//           vendor_id,
+//           vendor_name: vendor.pharmacy_name,
+//           product_name,
+//           receipt_code,
+//         },
+//         callback_url: `${process.env.CLIENT_URL || "http://localhost:5173"}/vendor/locator?payment=success&code=${receipt_code}&product=${encodeURIComponent(product_name || "")}`,
+//       },
+//       {
+//         headers: {
+//           Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+//           "Content-Type": "application/json",
+//         },
+//       }
+//     );
+
+//     return res.json({
+//       success: true,
+//       receipt_code,
+//       payment_url: paystackRes.data?.data?.authorization_url || null,
+//       vendor_name: vendor.pharmacy_name,
+//       product_name,
+//       amount,
+//     });
+//   } catch (err) {
+//     console.error("Pay vendor error:", err.response?.data || err.message);
+//     return res.status(500).json({ error: "Payment initiation failed" });
+//   }
+// };
 exports.payVendor = async (req, res) => {
   try {
-    const { vendor_id, product_name, amount, customer_email } = req.body;
+    // logged-in customer (auth middleware on the route) — name/email come from the account
+    const { vendor_id, product_name, order_mode = "pickup", delivery_address = "" } = req.body;
 
-    if (!vendor_id || !product_name || !amount)
-      return res.status(400).json({ error: "vendor_id, product_name and amount required" });
+    if (!vendor_id || !product_name)
+      return res.status(400).json({ error: "vendor_id and product_name required" });
+    if (!["pickup", "delivery"].includes(order_mode))
+      return res.status(400).json({ error: "Invalid order mode" });
+    if (order_mode === "delivery" && !delivery_address.trim())
+      return res.status(400).json({ error: "Delivery address required" });
 
     const vendor = await Vendor.findById(vendor_id);
     if (!vendor) return res.status(404).json({ error: "Vendor not found" });
 
-    const receipt_code = `VS-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+    // price + delivery fee always come from the DB, never from the client
+    const prod = vendor.products.find((p) => p.name === product_name);
+    if (!prod || !prod.in_stock || !(prod.price > 0))
+      return res.status(400).json({ error: "Product unavailable" });
 
+    const product_amount = prod.price;
+    const delivery_fee = order_mode === "delivery" ? Number(prod.delivery_fee || 0) : 0;
+    const total_amount = product_amount + delivery_fee;
+
+    const receipt_code = `VS-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+    const email = req.user.email;
+
+    await Order.create({
+      vendor_id: String(vendor._id),
+      vendor_name: vendor.pharmacy_name,
+      product_name,
+      amount: total_amount,
+      product_amount,
+      delivery_fee,
+      customer_name: req.user.name,
+      customer_email: email,
+      user_id: String(req.user._id),
+      order_mode,
+      delivery_address: order_mode === "delivery" ? delivery_address : "",
+      receipt_code,
+      status: "pending",
+    });
+
+    const summary = {
+      success: true,
+      receipt_code,
+      vendor_name: vendor.pharmacy_name,
+      product_name,
+      order_mode,
+      product_amount,
+      delivery_fee,
+      total_amount,
+    };
+
+    // no Paystack key (dev): mark paid immediately so receipts can be tested
     if (!process.env.PAYSTACK_SECRET_KEY || process.env.PAYSTACK_SECRET_KEY.trim() === "") {
-      return res.json({
-        success: true,
-        mock: true,
-        receipt_code,
-        payment_url: null,
-        vendor_name: vendor.pharmacy_name,
-        product_name,
-        amount,
-      });
+      await markOrderPaid(receipt_code, "mock");
+      return res.json({ ...summary, mock: true, payment_url: null });
     }
 
     const paystackRes = await axios.post(
       `${process.env.PAYSTACK_BASE_URL}/transaction/initialize`,
       {
-        amount: String(amount * 100),
-        email: customer_email || "customer@verascann.com",
+        amount: String(Math.round(total_amount * 100)), // kobo
+        email,
         currency: "NGN",
         reference: receipt_code,
-        pass_charge: false,
-        customer: {
-          email: customer_email || "customer@verascann.com",
-          name: "VeraScann Customer",
-        },
-        metadata: {
-          vendor_id,
-          vendor_name: vendor.pharmacy_name,
-          product_name,
-          receipt_code,
-        },
-        callback_url: `${process.env.CLIENT_URL || "http://localhost:5173"}/vendor/locator?payment=success&code=${receipt_code}&product=${encodeURIComponent(product_name || "")}`,
+        metadata: { vendor_id, vendor_name: vendor.pharmacy_name, product_name, receipt_code, order_mode, product_amount, delivery_fee },
+        callback_url: `${process.env.CLIENT_URL || "http://localhost:5173"}/vendor/locator?payment=success&code=${receipt_code}&product=${encodeURIComponent(product_name)}`,
       },
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
-          "Content-Type": "application/json",
-        },
-      }
+      { headers: { Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`, "Content-Type": "application/json" } }
     );
 
-    return res.json({
-      success: true,
-      receipt_code,
-      payment_url: paystackRes.data?.data?.authorization_url || null,
-      vendor_name: vendor.pharmacy_name,
-      product_name,
-      amount,
-    });
+    const payment_url = paystackRes.data?.data?.authorization_url || null;
+    await Order.updateOne({ receipt_code }, { payment_url: payment_url || "" });
+    return res.json({ ...summary, payment_url });
   } catch (err) {
     console.error("Pay vendor error:", err.response?.data || err.message);
     return res.status(500).json({ error: "Payment initiation failed" });
   }
 };
-
 exports.activateByReference = async (req, res) => {
   try {
     const { reference } = req.body;

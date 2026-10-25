@@ -95,6 +95,9 @@
 const crypto = require("crypto");
 const BrandRegistration = require("../models/BrandRegistration");
 const Vendor = require("../models/Vendor");
+const Order = require("../models/Order");
+const { markOrderPaid } = require("../utils/orderPayment");
+
 
 exports.handleWebhook = async (req, res) => {
   try {
@@ -114,8 +117,32 @@ exports.handleWebhook = async (req, res) => {
     const data = req.body?.data || {};
     const ref = data?.reference || "";
 
-    if (event === "charge.success" || event === "transaction.success") {
+       
+
+              if (event === "charge.success" || event === "transaction.success") {
+      if (await Order.exists({ receipt_code: ref })) {
+        await markOrderPaid(ref, ref);
+        return res.status(200).json({ success: true });
+      }
+
+     
+
+
+      // Customer order payment (atomic: only first webhook flips pending → paid)
+      const order = await Order.findOneAndUpdate(
+        { receipt_code: ref, status: "pending" },
+        { status: "paid", payment_reference: ref },
+        { new: true }
+      );
+      if (order) {
+        await Vendor.findByIdAndUpdate(order.vendor_id, {
+          $inc: { orders_count: 1, revenue: order.product_amount }, // product only, not delivery
+        });
+        return res.status(200).json({ success: true });
+      }
+
       if (ref.startsWith("VS-")) {
+       
         const brandId = ref.replace("VS-", "");
         await BrandRegistration.findByIdAndUpdate(brandId, {
           status: "active",

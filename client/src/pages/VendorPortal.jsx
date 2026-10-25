@@ -35,6 +35,7 @@ export default function VendorPortal() {
     try {
       const { data } = await axios.put(`${API}/api/vendors/me/products`, { products }, { headers });
       setVendor(data.vendor);
+      setProducts(data.vendor.products || []);
       setEditing(false);
     } catch (err) {
       alert(err.response?.data?.error || "Save failed");
@@ -172,10 +173,11 @@ const updateProduct = (i, key, val) => {
           ))}
         </div>
 
-        {products.map((p, i) => (
-          
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 130px 130px 110px 40px", gap: 10, padding: "10px", background: i % 2 === 0 ? "#111" : "transparent", borderRadius: 6, marginBottom: 8 }}>
-            {editing ? (
+       {products.map((p, i) => (
+  <div
+    key={i}
+    style={{ display: "grid", gridTemplateColumns: "1fr 130px 130px 110px 40px", gap: 10, padding: "10px", background: i % 2 === 0 ? "#111" : "transparent", borderRadius: 6, marginBottom: 8 }}>
+                  {editing ? (
               <>
                 <input
                   value={p.name}

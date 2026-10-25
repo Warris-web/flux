@@ -95,11 +95,15 @@
 
 const mongoose = require("mongoose");
 
+
 const ProductItemSchema = new mongoose.Schema({
   name: { type: String, required: true },
   price: { type: Number, required: true },
+  delivery_fee: { type: Number, default: 0 },
   in_stock: { type: Boolean, default: true },
 });
+
+
 
 const VendorSchema = new mongoose.Schema({
   pharmacy_name: { type: String, required: true },

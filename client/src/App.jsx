@@ -149,6 +149,8 @@ import VendorPortal from "./pages/VendorPortal";
 import VendorRegisterPage from "./pages/VendorRegisterPage";
 import VendorLocatorPage from "./pages/VendorLocatorPage";
 import CheckoutPage from "./pages/CheckoutPage";
+import OrdersPage from "./pages/OrderPage";
+
 
 
 
@@ -199,6 +201,7 @@ function Shell() {
             </Protected>
           }
         />
+        <Route path="/orders" element={<OrdersPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
 
         <Route path="/dashboard" element={<Protected role="nafdac"><NafdacPortal /></Protected>} />
