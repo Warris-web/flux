@@ -3,10 +3,9 @@
 // import Logo from "./Logo";
 
 // const LINKS = [
-//   { label: "Scanner",          path: "/scan" },
+//   { label: "Scan",          path: "/scan" },
 //   { label: "Brand onboarding", path: "/onboard" },
 //   { label: "Vendor network",   path: "/vendor/register" },
-//   // { label: "NAFDAC",           path: "/dashboard",     role: "nafdac" },
 //   { label: "My brands",        path: "/brand",         role: "brand" },
 //   { label: "Vendor portal",    path: "/vendor/portal", role: "vendor" },
 // ];
@@ -20,7 +19,10 @@
 //     >
 //       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
 //         {dark ? (
-//           <><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></>
+//           <>
+//             <circle cx="12" cy="12" r="4" />
+//             <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+//           </>
 //         ) : (
 //           <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
 //         )}
@@ -61,14 +63,20 @@
 //             <>
 //               <span className="hidden text-neutral-500 sm:inline dark:text-neutral-400">{user.name}</span>
 //               <button
-//                 onClick={() => { logout(); navigate("/login"); }}
+//                 onClick={() => {
+//                   logout();
+//                   navigate("/login");
+//                 }}
 //                 className="rounded-full border border-neutral-300 px-4 py-1.5 text-neutral-600 transition-colors hover:text-neutral-950 dark:border-neutral-800 dark:text-neutral-400 dark:hover:text-white"
 //               >
 //                 Log out
 //               </button>
 //             </>
 //           ) : (
-//             <Link to="/login" className="rounded-full border border-neutral-300 px-4 py-1.5 text-neutral-600 transition-colors hover:text-neutral-950 dark:border-neutral-800 dark:text-neutral-400 dark:hover:text-white">
+//             <Link
+//               to="/login"
+//               className="rounded-full border border-neutral-300 px-4 py-1.5 text-neutral-600 transition-colors hover:text-neutral-950 dark:border-neutral-800 dark:text-neutral-400 dark:hover:text-white"
+//             >
 //               Log in
 //             </Link>
 //           )}
@@ -79,18 +87,32 @@
 //   );
 // }
 
-
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Logo from "./Logo";
 
-const LINKS = [
-  { label: "Scan",          path: "/scan" },
-  { label: "Brand onboarding", path: "/onboard" },
-  { label: "Vendor network",   path: "/vendor/register" },
-  { label: "My brands",        path: "/brand",         role: "brand" },
-  { label: "Vendor portal",    path: "/vendor/portal", role: "vendor" },
-];
+// What each kind of visitor sees in the navbar.
+// guest = not logged in. Logged-in roles see ONLY their own links.
+const NAV = {
+  guest: [
+    { label: "Scan",             path: "/scan" },
+    { label: "Brand onboarding", path: "/onboard" },
+    { label: "Vendor network",   path: "/vendor/register" },
+  ],
+  user: [
+    { label: "Scan",      path: "/scan" },
+    { label: "My orders", path: "/orders" },
+  ],
+  brand: [
+    { label: "My brands", path: "/brand" },
+  ],
+  vendor: [
+    { label: "Vendor portal", path: "/vendor/portal" },
+  ],
+  nafdac: [
+    { label: "Dashboard", path: "/dashboard" },
+  ],
+};
 
 function ThemeToggle({ dark, onToggle }) {
   return (
@@ -116,7 +138,8 @@ function ThemeToggle({ dark, onToggle }) {
 export default function Topbar({ themed, dark, onToggleTheme }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const links = LINKS.filter((l) => !l.role || user?.role === l.role);
+
+  const links = NAV[user ? user.role : "guest"] || [];
 
   return (
     <header className="sticky top-0 z-50 border-b border-neutral-200 bg-neutral-50/90 backdrop-blur dark:border-neutral-900 dark:bg-[#0a0a0a]/90">
