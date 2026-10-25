@@ -67,7 +67,7 @@ export default function UserRegisterPage() {
         <div style={{ fontSize: 11, color: "#E5391F", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 6 }}>
           User Registration
         </div>
-        <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 4 }}>Create your scanner account</div>
+        <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 4 }}>Create your Mantios User account</div>
         <div style={{ fontSize: 12, color: "#555" }}>
           Sign up to scan products and verify authenticity before you buy.
         </div>

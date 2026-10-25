@@ -7,9 +7,9 @@ const VERA = import.meta.env.VITE_VERASCANN_URL || "https://Oriadee-verascann-ap
 
 const PRODUCTS = [
   { id: "biore uv",  label: "Biore uv",  category: "cosmetics" },
-  { id: "coartem",  label: "Coartem",  category: "pharma" },
-  { id: "vaseline", label: "Vaseline", category: "cosmetics" },
-  { id: "custom",   label: "Other",    category: "general" },
+  // { id: "coartem",  label: "Coartem",  category: "pharma" },
+  // { id: "vaseline", label: "Vaseline", category: "cosmetics" },
+  // { id: "custom",   label: "Other",    category: "general" },
 ];
 
 const STATUS_COLOR  = { PASS: "#43A047", FAIL: "#7B0027", WARN: "#F5A623" };
