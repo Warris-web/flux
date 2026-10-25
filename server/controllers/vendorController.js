@@ -703,6 +703,7 @@ exports.payVendor = async (req, res) => {
   try {
     const {
       vendor_id,
+      vendor_name,
       product_name,
       amount,
       customer_email,
@@ -713,55 +714,90 @@ exports.payVendor = async (req, res) => {
       notes = "",
     } = req.body;
 
-    if (!vendor_id || !product_name || !amount) {
-      return res.status(400).json({ error: "vendor_id, product_name and amount required" });
+    if (!product_name || !amount || Number(amount) <= 0) {
+      return res.status(400).json({
+        error: "product_name and a valid amount are required",
+      });
     }
 
-    const vendor = await Vendor.findById(vendor_id);
-    if (!vendor) return res.status(404).json({ error: "Vendor not found" });
+    if (!customer_name || !customer_phone) {
+      return res.status(400).json({
+        error: "customer_name and customer_phone are required",
+      });
+    }
 
-    const receipt_code = `VS-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+    if (order_mode === "delivery" && !delivery_address.trim()) {
+      return res.status(400).json({
+        error: "delivery_address is required when order_mode is delivery",
+      });
+    }
 
-    if (!process.env.PAYSTACK_SECRET_KEY || process.env.PAYSTACK_SECRET_KEY.trim() === "") {
+    let vendor = null;
+
+    if (vendor_id) {
+      vendor = await Vendor.findById(vendor_id);
+      if (!vendor) {
+        return res.status(404).json({ error: "Vendor not found" });
+      }
+    }
+
+    const receipt_code = `VS-${Date.now()
+      .toString(36)
+      .toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+
+    const safeAmount = Number(amount);
+
+    if (
+      !process.env.PAYSTACK_SECRET_KEY ||
+      process.env.PAYSTACK_SECRET_KEY.trim() === ""
+    ) {
       return res.json({
         success: true,
         mock: true,
         receipt_code,
         payment_url: null,
-        vendor_name: vendor.pharmacy_name,
+        vendor_name: vendor?.pharmacy_name || vendor_name || "Verified Vendor",
         product_name,
-        amount,
+        amount: safeAmount,
         order_mode,
-        delivery_address,
+        delivery_address: order_mode === "delivery" ? delivery_address : "",
         customer_name,
         customer_phone,
         notes,
       });
     }
 
+    const callbackBase = `${process.env.CLIENT_URL || "http://localhost:5173"}/vendor/locator`;
+    const callbackUrl =
+      `${callbackBase}?payment=success&code=${encodeURIComponent(
+        receipt_code
+      )}&product=${encodeURIComponent(product_name || "")}&mode=${encodeURIComponent(
+        order_mode
+      )}&address=${encodeURIComponent(delivery_address || "")}`;
+
     const paystackRes = await axios.post(
       `${process.env.PAYSTACK_BASE_URL}/transaction/initialize`,
       {
-        amount: String(Number(amount) * 100),
-        email: customer_email || "customer@verascann.com",
+        amount: String(Math.round(safeAmount * 100)),
+        email: customer_email || "customer@mantios.com",
         currency: "NGN",
         reference: receipt_code,
         pass_charge: false,
         customer: {
-          email: customer_email || "customer@verascann.com",
-          name: customer_name || "VeraScann Customer",
+          email: customer_email || "customer@mantios.com",
+          name: customer_name || "Mantios Customer",
         },
         metadata: {
-          vendor_id,
-          vendor_name: vendor.pharmacy_name,
+          vendor_id: vendor_id || null,
+          vendor_name: vendor?.pharmacy_name || vendor_name || "Verified Vendor",
           product_name,
           receipt_code,
           order_mode,
-          delivery_address,
+          delivery_address: order_mode === "delivery" ? delivery_address : "",
           customer_phone,
           notes,
         },
-        callback_url: `${process.env.CLIENT_URL || "http://localhost:5173"}/vendor/locator?payment=success&code=${receipt_code}&product=${encodeURIComponent(product_name || "")}&mode=${encodeURIComponent(order_mode)}`,
+        callback_url: callbackUrl,
       },
       {
         headers: {
@@ -775,11 +811,11 @@ exports.payVendor = async (req, res) => {
       success: true,
       receipt_code,
       payment_url: paystackRes.data?.data?.authorization_url || null,
-      vendor_name: vendor.pharmacy_name,
+      vendor_name: vendor?.pharmacy_name || vendor_name || "Verified Vendor",
       product_name,
-      amount,
+      amount: safeAmount,
       order_mode,
-      delivery_address,
+      delivery_address: order_mode === "delivery" ? delivery_address : "",
       customer_name,
       customer_phone,
       notes,

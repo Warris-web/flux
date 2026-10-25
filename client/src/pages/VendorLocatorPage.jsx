@@ -54,21 +54,35 @@ export default function VendorLocatorPage() {
     const code = searchParams.get("code");
     const pname = searchParams.get("product") || product;
     const mode = searchParams.get("mode") || "pickup";
+    const address = searchParams.get("address") || "";
 
     if (payment === "success" && code) {
       const savedOrder = getRecentOrder();
       const nextReceipt = savedOrder
-        ? { ...savedOrder, code, product: pname, order_mode: mode, status: "confirmed" }
+        ? {
+            ...savedOrder,
+            code,
+            product: pname,
+            order_mode: mode,
+            delivery_address:
+              mode === "delivery"
+                ? address || savedOrder.delivery_address || ""
+                : savedOrder.delivery_address || "",
+            status: "confirmed",
+          }
         : {
             code,
             vendor: "Your verified vendor",
-            address: "Check your selected vendor above",
+            address:
+              mode === "delivery"
+                ? address || "Check your selected vendor above"
+                : "Check your selected vendor above",
             phone: "—",
             product: pname,
             price: 0,
             status: "confirmed",
             order_mode: mode,
-            delivery_address: "",
+            delivery_address: mode === "delivery" ? address : "",
             customer_name: "Customer",
             customer_phone: "—",
             generated_at: new Date().toLocaleString("en-NG"),
@@ -88,6 +102,20 @@ export default function VendorLocatorPage() {
   }, [receipt]);
 
   const initiatePayment = async (vendor, prod) => {
+    const cleanedName = orderForm.customer_name.trim();
+    const cleanedPhone = orderForm.customer_phone.trim();
+    const cleanedAddress = orderForm.delivery_address.trim();
+
+    if (!cleanedName || !cleanedPhone) {
+      alert("Please enter your full name and phone number.");
+      return;
+    }
+
+    if (orderForm.mode === "delivery" && !cleanedAddress) {
+      alert("Please enter a delivery address.");
+      return;
+    }
+
     setPaying(true);
 
     try {
@@ -95,14 +123,15 @@ export default function VendorLocatorPage() {
 
       const payload = {
         vendor_id: isDemoVendor ? null : vendor._id,
+        vendor_name: vendor.pharmacy_name,
         product_name: prod.name,
-        amount: prod.price,
+        amount: Number(prod.price) || 0,
         customer_email: "customer@mantios.com",
-        customer_name: orderForm.customer_name,
-        customer_phone: orderForm.customer_phone,
+        customer_name: cleanedName,
+        customer_phone: cleanedPhone,
         order_mode: orderForm.mode,
-        delivery_address: orderForm.mode === "delivery" ? orderForm.delivery_address : "",
-        notes: orderForm.notes,
+        delivery_address: orderForm.mode === "delivery" ? cleanedAddress : "",
+        notes: orderForm.notes.trim(),
       };
 
       const { data } = await axios.post(`${API}/api/vendors/pay`, payload);
@@ -117,9 +146,9 @@ export default function VendorLocatorPage() {
         status: "paid",
         order_mode: orderForm.mode,
         delivery_address:
-          orderForm.mode === "delivery" ? orderForm.delivery_address : vendor.address,
-        customer_name: orderForm.customer_name,
-        customer_phone: orderForm.customer_phone,
+          orderForm.mode === "delivery" ? cleanedAddress : vendor.address,
+        customer_name: cleanedName,
+        customer_phone: cleanedPhone,
         generated_at: new Date().toLocaleString("en-NG"),
         payment_url: data.payment_url || null,
       };
@@ -694,7 +723,13 @@ export default function VendorLocatorPage() {
 
                   <div style={{ display: "flex", gap: 10, marginBottom: 12 }}>
                     <button
-                      onClick={() => setOrderForm((prev) => ({ ...prev, mode: "pickup" }))}
+                      onClick={() =>
+                        setOrderForm((prev) => ({
+                          ...prev,
+                          mode: "pickup",
+                          delivery_address: "",
+                        }))
+                      }
                       style={{
                         flex: 1,
                         background: orderForm.mode === "pickup" ? "#E5391F" : "transparent",
