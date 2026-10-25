@@ -39,7 +39,6 @@
 //   })
 //   .catch((err) => console.error("MongoDB error:", err));
 
-
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -47,17 +46,37 @@ require("dotenv").config();
 
 const app = express();
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "https://mantios.vercel.app",
+  "https://app.mantios.ng",
+  "https://mantios.ng",
+];
+
+
+if (process.env.CLIENT_URL) {
+  allowedOrigins.push(
+    ...process.env.CLIENT_URL.split(",").map((url) => url.trim())
+  );
+}
+
 const corsOptions = {
-  origin: ["http://localhost:5173", "http://localhost:5174"],
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error(`CORS blocked for origin: ${origin}`));
+  },
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
 };
 
-app.use(cors({
-  origin: process.env.CLIENT_URL || "http://localhost:5173" || "https://app.mantios.ng",
-  credentials: true,
-}));
+app.use(cors(corsOptions));
+app.options(/.*/, cors(corsOptions));
+
 app.use(express.json({ limit: "10mb" }));
 
 app.use("/api/auth", require("./routes/auth"));
@@ -68,16 +87,19 @@ app.use("/api/dashboard", require("./routes/dashboard"));
 app.use("/api/vendors", require("./routes/vendors"));
 app.use("/api/products", require("./routes/products"));
 
-
-
-app.get("/", (req, res) => res.json({ status: "VeraScann API running" }));
+app.get("/", (req, res) =>
+  res.json({ status: "VeraScann API running" })
+);
 
 mongoose
   .connect(process.env.MONGODB_URI)
   .then(() => {
     console.log("MongoDB connected");
-    app.listen(process.env.PORT, () =>
-      console.log(`Server running on port ${process.env.PORT}`)
+
+    const port = process.env.PORT || 5000;
+
+    app.listen(port, () =>
+      console.log(`Server running on port ${port}`)
     );
   })
   .catch((err) => console.error("MongoDB error:", err));

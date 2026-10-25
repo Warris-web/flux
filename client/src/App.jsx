@@ -148,6 +148,9 @@ import NafdacPortal from "./pages/NafdacPortal";
 import VendorPortal from "./pages/VendorPortal";
 import VendorRegisterPage from "./pages/VendorRegisterPage";
 import VendorLocatorPage from "./pages/VendorLocatorPage";
+import CheckoutPage from "./pages/CheckoutPage";
+
+
 
 function Protected({ children, role = null }) {
   const { user, loading } = useAuth();
@@ -196,6 +199,7 @@ function Shell() {
             </Protected>
           }
         />
+        <Route path="/checkout" element={<CheckoutPage />} />
 
         <Route path="/dashboard" element={<Protected role="nafdac"><NafdacPortal /></Protected>} />
         <Route path="/brand" element={<Protected role="brand"><BrandPortal /></Protected>} />

@@ -18,6 +18,8 @@ export default function VendorPortal() {
   const token   = localStorage.getItem("vs_token");
   const headers = { Authorization: `Bearer ${token}` };
 
+
+
   useEffect(() => {
     axios.get(`${API}/api/vendors/me`, { headers })
       .then(r => {
@@ -39,13 +41,32 @@ export default function VendorPortal() {
     } finally { setSaving(false); }
   };
 
-  const updateProduct = (i, key, val) => {
-    const updated = [...products];
-    updated[i] = { ...updated[i], [key]: val };
-    setProducts(updated);
-  };
+  // const updateProduct = (i, key, val) => {
+  //   const updated = [...products];
+  //   updated[i] = { ...updated[i], [key]: val };
+  //   setProducts(updated);
+  // };
 
-  const addProduct = () => setProducts(p => [...p, { name: "", price: 0, in_stock: true }]);
+  // const addProduct = () => setProducts(p => [...p, { name: "", price: 0, in_stock: true }]);
+
+    const addProduct = () =>
+  setProducts((p) => [
+    ...p,
+    {
+      name: "",
+      price: 0,
+      delivery_fee: 0,
+      in_stock: true,
+    },
+  ]);
+
+const updateProduct = (i, key, val) => {
+  const updated = [...products];
+  updated[i] = { ...updated[i], [key]: val };
+  setProducts(updated);
+};
+
+
   const removeProduct = (i) => setProducts(p => p.filter((_, j) => j !== i));
 
   if (loading) return <div style={{ padding: 40, color: "#555", textAlign: "center" }}>Loading vendor portal...</div>;
@@ -145,21 +166,24 @@ export default function VendorPortal() {
     ) : (
       <>
         {/* Table header */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 130px 110px 40px", gap: 10, padding: "6px 10px", marginBottom: 6 }}>
-          {["Product Name", "Price (₦)", "In Stock", ""].map(h => (
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 130px 130px 110px 40px", gap: 10, padding: "6px 10px", marginBottom: 6 }}>
+          {["Product Name", "Price (₦)", "Delivery (₦)", "In Stock", ""].map(h => (
             <div key={h} style={{ fontSize: 10, fontWeight: 600, color: "#555", textTransform: "uppercase", letterSpacing: "0.06em" }}>{h}</div>
           ))}
         </div>
 
         {products.map((p, i) => (
-          <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 130px 110px 40px", gap: 10, padding: "10px", background: i % 2 === 0 ? "#111" : "transparent", borderRadius: 6, marginBottom: 4, alignItems: "center" }}>
+          
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 130px 130px 110px 40px", gap: 10, padding: "10px", background: i % 2 === 0 ? "#111" : "transparent", borderRadius: 6, marginBottom: 8 }}>
             {editing ? (
               <>
                 <input
                   value={p.name}
                   placeholder="Product name"
                   onChange={e => updateProduct(i, "name", e.target.value)}
-                  style={{ background: "#0A0A0A", border: "1px solid #2A2A2A", borderRadius: 6, padding: "8px 10px", fontSize: 12, color: "#fff", outline: "none", fontFamily: "inherit", width: "100%" }} />
+                  style={{ background: "#0A0A0A", border: "1px solid #2A2A2A", borderRadius: 6, padding: "8px 10px", fontSize: 12, color: "#fff", outline: "none", fontFamily: "inherit", width: "100%" }}
+                />
+
                 <div style={{ position: "relative" }}>
                   <span style={{ position: "absolute", left: 8, top: "50%", transform: "translateY(-50%)", color: "#555", fontSize: 12 }}>₦</span>
                   <input
@@ -167,16 +191,32 @@ export default function VendorPortal() {
                     value={p.price || ""}
                     placeholder="0"
                     onChange={e => updateProduct(i, "price", Number(e.target.value))}
-                    style={{ background: "#0A0A0A", border: "1px solid #2A2A2A", borderRadius: 6, padding: "8px 10px", paddingLeft: 22, fontSize: 12, color: "#fff", outline: "none", fontFamily: "inherit", width: "100%" }} />
+                    style={{ background: "#0A0A0A", border: "1px solid #2A2A2A", borderRadius: 6, padding: "8px 10px", paddingLeft: 22, fontSize: 12, color: "#fff", outline: "none", fontFamily: "inherit", width: "100%" }}
+                  />
                 </div>
+
+                <div style={{ position: "relative" }}>
+                  <span style={{ position: "absolute", left: 8, top: "50%", transform: "translateY(-50%)", color: "#555", fontSize: 12 }}>₦</span>
+                  <input
+                    type="number"
+                    value={p.delivery_fee || ""}
+                    placeholder="0"
+                    onChange={e => updateProduct(i, "delivery_fee", Number(e.target.value))}
+                    style={{ background: "#0A0A0A", border: "1px solid #2A2A2A", borderRadius: 6, padding: "8px 10px", paddingLeft: 22, fontSize: 12, color: "#fff", outline: "none", fontFamily: "inherit", width: "100%" }}
+                  />
+                </div>
+
                 <button
                   onClick={() => updateProduct(i, "in_stock", !p.in_stock)}
-                  style={{ background: p.in_stock ? "rgba(67,160,71,0.1)" : "rgba(229,57,53,0.1)", color: p.in_stock ? "#43A047" : "#E53935", border: `1px solid ${p.in_stock ? "#43A047" : "#E53935"}`, borderRadius: 6, padding: "7px 10px", fontSize: 11, cursor: "pointer", fontFamily: "inherit" }}>
+                  style={{ background: p.in_stock ? "rgba(67,160,71,0.1)" : "rgba(229,57,53,0.1)", color: p.in_stock ? "#43A047" : "#E53935", border: `1px solid ${p.in_stock ? "#43A047" : "#E53935"}`, borderRadius: 6, padding: "7px 10px", cursor: "pointer", fontSize: 10, fontWeight: 700, fontFamily: "inherit" }}
+                >
                   {p.in_stock ? "In Stock" : "Out of Stock"}
                 </button>
+
                 <button
                   onClick={() => removeProduct(i)}
-                  style={{ background: "transparent", border: "1px solid #2A2A2A", color: "#555", borderRadius: 6, padding: "7px", cursor: "pointer", fontSize: 16, lineHeight: 1 }}>
+                  style={{ background: "transparent", border: "1px solid #2A2A2A", color: "#555", borderRadius: 6, padding: "7px", cursor: "pointer", fontSize: 16, lineHeight: 1 }}
+                >
                   ×
                 </button>
               </>
@@ -184,6 +224,7 @@ export default function VendorPortal() {
               <>
                 <div style={{ fontSize: 13, color: "#fff" }}>{p.name}</div>
                 <div style={{ fontSize: 13, color: "#E5391F", fontWeight: 600 }}>₦{(p.price || 0).toLocaleString()}</div>
+                <div style={{ fontSize: 13, color: "#fff" }}>₦{(p.delivery_fee || 0).toLocaleString()}</div>
                 <div style={{ fontSize: 11, fontWeight: 600, color: p.in_stock ? "#43A047" : "#E53935" }}>
                   {p.in_stock ? "✓ In Stock" : "Out of Stock"}
                 </div>
