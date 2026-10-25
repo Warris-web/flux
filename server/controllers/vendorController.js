@@ -715,15 +715,11 @@ exports.payVendor = async (req, res) => {
     } = req.body;
 
     if (!product_name || !amount || Number(amount) <= 0) {
-      return res.status(400).json({
-        error: "product_name and a valid amount are required",
-      });
+      return res.status(400).json({ error: "product_name and a valid amount are required" });
     }
 
     if (!customer_name || !customer_phone) {
-      return res.status(400).json({
-        error: "customer_name and customer_phone are required",
-      });
+      return res.status(400).json({ error: "customer_name and customer_phone are required" });
     }
 
     if (order_mode === "delivery" && !delivery_address.trim()) {
@@ -733,7 +729,6 @@ exports.payVendor = async (req, res) => {
     }
 
     let vendor = null;
-
     if (vendor_id) {
       vendor = await Vendor.findById(vendor_id);
       if (!vendor) {
@@ -741,10 +736,7 @@ exports.payVendor = async (req, res) => {
       }
     }
 
-    const receipt_code = `VS-${Date.now()
-      .toString(36)
-      .toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
-
+    const receipt_code = `VS-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
     const safeAmount = Number(amount);
 
     if (
@@ -767,9 +759,8 @@ exports.payVendor = async (req, res) => {
       });
     }
 
-    const callbackBase = `${process.env.CLIENT_URL || "http://localhost:5173"}/vendor/locator`;
     const callbackUrl =
-      `${callbackBase}?payment=success&code=${encodeURIComponent(
+      `${process.env.CLIENT_URL || "http://localhost:5173"}/vendor/locator?payment=success&code=${encodeURIComponent(
         receipt_code
       )}&product=${encodeURIComponent(product_name || "")}&mode=${encodeURIComponent(
         order_mode

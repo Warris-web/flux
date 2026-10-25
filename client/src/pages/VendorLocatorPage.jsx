@@ -96,12 +96,17 @@ export default function VendorLocatorPage() {
 
   useEffect(() => {
     const recentOrder = getRecentOrder();
-    if (recentOrder && !receipt) {
+    if (recentOrder && recentOrder.product === product && !receipt) {
       setReceipt(recentOrder);
     }
-  }, [receipt]);
+  }, [product, receipt]);
 
   const initiatePayment = async (vendor, prod) => {
+    if (!vendor || !prod) {
+      alert("Please select a vendor and product first.");
+      return;
+    }
+
     const cleanedName = orderForm.customer_name.trim();
     const cleanedPhone = orderForm.customer_phone.trim();
     const cleanedAddress = orderForm.delivery_address.trim();
@@ -595,12 +600,16 @@ export default function VendorLocatorPage() {
                       return (
                         <div
                           key={j}
-                          onClick={() =>
-                            pInStock
-                              ? setSelProd({ name: pName, price: pPrice, in_stock: pInStock }) &&
-                                setSelected(vendor)
-                              : null
-                          }
+                          onClick={() => {
+                            if (!pInStock) return;
+                            setSelProd({ name: pName, price: pPrice, in_stock: pInStock });
+                            setSelected(vendor);
+                            setOrderForm((prev) => ({
+                              ...prev,
+                              mode: "pickup",
+                              delivery_address: "",
+                            }));
+                          }}
                           style={{
                             background: isSelected ? "rgba(229,57,31,0.08)" : "#111",
                             border: `1px solid ${isSelected ? "#E5391F" : isTarget ? "rgba(229,57,31,0.25)" : "#222"}`,
@@ -897,6 +906,7 @@ export default function VendorLocatorPage() {
                       onClick={() => initiatePayment(vendor, selProd)}
                       disabled={
                         paying ||
+                        !selProd ||
                         selProd.price <= 0 ||
                         !orderForm.customer_name ||
                         !orderForm.customer_phone ||
@@ -915,6 +925,7 @@ export default function VendorLocatorPage() {
                         fontFamily: "inherit",
                         opacity:
                           paying ||
+                          !selProd ||
                           selProd.price <= 0 ||
                           !orderForm.customer_name ||
                           !orderForm.customer_phone ||
