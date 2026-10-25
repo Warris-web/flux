@@ -456,6 +456,7 @@
 const axios = require("axios");
 const Vendor = require("../models/Vendor");
 const User = require("../models/User");
+const Order = require("../models/Order");
 
 exports.registerVendor = async (req, res) => {
   try {
@@ -701,6 +702,21 @@ exports.getAllVendors = async (req, res) => {
 
 exports.payVendor = async (req, res) => {
   try {
+    const order = await Order.create({
+  vendor_id,
+  vendor_name: vendor.pharmacy_name,
+  product_name,
+  amount: Number(amount),
+  customer_name: customer_name || "Customer",
+  customer_phone: customer_phone || "",
+  customer_email: customer_email || "customer@mantios.com",
+  order_mode: order_mode || "pickup",
+  delivery_address: delivery_address || "",
+  notes: notes || "",
+  receipt_code,
+  payment_reference: receipt_code,
+  status: "pending",
+});
     const {
       vendor_id,
       vendor_name,

@@ -53,6 +53,7 @@ const corsOptions = {
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
 };
+const ordersRoutes = require("./routes/orders");
 
 app.use(cors({
   origin: process.env.CLIENT_URL || "http://localhost:5173" || "https://app.mantios.ng",
@@ -67,6 +68,8 @@ app.use("/api/paystack", require("./routes/squad"));
 app.use("/api/dashboard", require("./routes/dashboard"));
 app.use("/api/vendors", require("./routes/vendors"));
 app.use("/api/products", require("./routes/products"));
+
+app.use("/api/orders", ordersRoutes);
 
 app.get("/", (req, res) => res.json({ status: "VeraScann API running" }));
 

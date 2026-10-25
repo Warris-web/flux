@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
+// import { saveRecentOrder, getRecentOrder } from "../utils/orderStorage";
 import axios from "axios";
 
 const API = import.meta.env.VITE_API_URL;
@@ -157,6 +158,7 @@ export default function VendorLocatorPage() {
         generated_at: new Date().toLocaleString("en-NG"),
         payment_url: data.payment_url || null,
       };
+
 
       setReceipt(nextReceipt);
       saveRecentOrder(nextReceipt);
